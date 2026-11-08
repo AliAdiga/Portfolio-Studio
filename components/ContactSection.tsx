@@ -1,132 +1,147 @@
 "use client";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { projectTypes, site } from "@/content/site";
-import { Divider } from "./Divider";
 
-/**
- * Inquiry form. No backend is configured by default, so the honest behaviour is:
- *  - validate, then open the visitor's email app with the message prepared
- *    (nothing is sent until they press Send there), and
- *  - if NEXT_PUBLIC_CONTACT_ENDPOINT is set (for example a Formspree URL),
- *    POST the form and report success only when the server answers 2xx.
- * A success message is never shown unless a request was actually accepted.
- */
-const endpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT;
-
-type Values = { name: string; email: string; type: string; message: string };
-type Errors = Partial<Record<keyof Values, string>>;
+type Values = { name: string; email: string; type: string; message: string; budget: string; timeline: string };
+type Errors = Partial<Record<"name" | "email" | "type" | "message", string>>;
+type State =
+  | { kind: "idle" }
+  | { kind: "sending" }
+  | { kind: "sent" }
+  | { kind: "fallback"; href: string; body: string }
+  | { kind: "failed" };
 
 function validate(v: Values): Errors {
   const e: Errors = {};
   if (v.name.trim().length < 2) e.name = "Please enter your name.";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email.trim())) e.email = "Please enter a valid email address.";
   if (!v.type) e.type = "Please choose a project type.";
-  if (v.message.trim().length < 20) e.message = "Please describe the project in at least a sentence or two (20 characters).";
+  if (v.message.trim().length < 20) e.message = "Please describe the project in a sentence or two (at least 20 characters).";
   return e;
 }
 
+const newKey = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()) + Math.random();
+
+/**
+ * Inquiry form. It posts to /api/inquiries and reports success only after the server accepted the message.
+ * If sending is not available, the visitor's text stays in the form and a prepared email is offered instead.
+ */
 export function ContactSection() {
   const uid = useId();
   const formRef = useRef<HTMLFormElement>(null);
+  const startedAt = useRef(0);
+  const attempt = useRef("");
   const [errors, setErrors] = useState<Errors>({});
-  const [state, setState] = useState<
-    | { kind: "idle" }
-    | { kind: "sending" }
-    | { kind: "mailto"; href: string; body: string }
-    | { kind: "sent" }
-    | { kind: "failed" }
-  >({ kind: "idle" });
+  const [state, setState] = useState<State>({ kind: "idle" });
+
+  useEffect(() => {
+    startedAt.current = Date.now();
+    attempt.current = newKey();
+  }, []);
 
   async function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
     ev.preventDefault();
+    if (state.kind === "sending") return; // blocks accidental double submits
     const fd = new FormData(ev.currentTarget);
     const v: Values = {
       name: String(fd.get("name") ?? ""),
       email: String(fd.get("email") ?? ""),
       type: String(fd.get("type") ?? ""),
       message: String(fd.get("message") ?? ""),
+      budget: String(fd.get("budget") ?? ""),
+      timeline: String(fd.get("timeline") ?? ""),
     };
     const found = validate(v);
     setErrors(found);
-    const first = (Object.keys(found) as (keyof Values)[])[0];
+    const first = (Object.keys(found) as (keyof Errors)[])[0];
     if (first) {
       formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
       return;
     }
 
-    if (endpoint) {
-      setState({ kind: "sending" });
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify(v),
-        });
-        setState(res.ok ? { kind: "sent" } : { kind: "failed" });
-        if (res.ok) formRef.current?.reset();
-      } catch {
+    setState({ kind: "sending" });
+    const fallbackBody = `Name: ${v.name.trim()}\nEmail: ${v.email.trim()}\nProject type: ${v.type}\n${
+      v.budget.trim() ? `Budget: ${v.budget.trim()}\n` : ""
+    }${v.timeline.trim() ? `Timeline: ${v.timeline.trim()}\n` : ""}\n${v.message.trim()}`;
+    const fallbackHref = `mailto:${site.email}?subject=${encodeURIComponent(`Project inquiry: ${v.type}`)}&body=${encodeURIComponent(fallbackBody)}`;
+
+    try {
+      const res = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...v,
+          website: String(fd.get("website") ?? ""),
+          elapsed: Date.now() - startedAt.current,
+          key: attempt.current,
+        }),
+      });
+      if (res.ok) {
+        formRef.current?.reset();
+        attempt.current = newKey();
+        startedAt.current = Date.now();
+        setState({ kind: "sent" });
+      } else if (res.status === 503) {
+        setState({ kind: "fallback", href: fallbackHref, body: fallbackBody });
+      } else if (res.status === 400) {
+        const data = (await res.json().catch(() => ({}))) as { fields?: Record<string, boolean>; error?: string };
+        if (data.fields) {
+          const e: Errors = {};
+          for (const k of Object.keys(data.fields)) {
+            if (k === "name" || k === "email" || k === "type" || k === "message") e[k] = "Please check this field.";
+          }
+          setErrors(e);
+        }
+        setState({ kind: "failed" });
+      } else {
         setState({ kind: "failed" });
       }
-      return;
+    } catch {
+      setState({ kind: "failed" });
     }
-
-    const body = `Name: ${v.name.trim()}\nEmail: ${v.email.trim()}\nProject type: ${v.type}\n\n${v.message.trim()}`;
-    const href = `mailto:${site.email}?subject=${encodeURIComponent(`Project inquiry: ${v.type}`)}&body=${encodeURIComponent(body)}`;
-    setState({ kind: "mailto", href, body });
-    window.location.href = href;
   }
 
-  const field = (k: keyof Values) => ({
+  const field = (k: keyof Errors) => ({
     id: `${uid}-${k}`,
     name: k,
     "aria-invalid": errors[k] ? (true as const) : undefined,
     "aria-describedby": errors[k] ? `${uid}-${k}-err` : undefined,
   });
-  const err = (k: keyof Values) =>
+  const err = (k: keyof Errors) =>
     errors[k] ? (
       <p className="error" id={`${uid}-${k}-err`}>
         {errors[k]}
       </p>
     ) : null;
+  const sending = state.kind === "sending";
 
   return (
-    <section id="contact" data-nav="contact" className="bg-sand" aria-labelledby="contact-h">
-      <Divider from="#3a2230" to="var(--c-sand)" />
+    <section id="contact" data-nav="contact" className="border-t border-line bg-sand" aria-labelledby="contact-h">
       <div className="wrap grid gap-14 py-20 md:py-28 lg:grid-cols-12">
         <div className="lg:col-span-5" data-reveal>
-          <h2 id="contact-h" data-mask className="display text-[clamp(2.4rem,5vw,4.4rem)]">
+          <h2 id="contact-h" className="display text-[clamp(2.4rem,5vw,4.4rem)]">
             Tell me about your <em>project</em>
           </h2>
           <p className="measure mt-6 text-[1.08rem] text-ink-soft">
             A few lines about your business and what you need is enough to start. I read every message myself.
           </p>
-          <ul className="mt-8 space-y-3 text-[1.02rem]">
-            <li>
-              Email:{" "}
-              <a className="text-link font-semibold" href={`mailto:${site.email}`}>
-                {site.email}
-              </a>
-            </li>
-            <li>
-              <a className="text-link font-semibold" href={site.instagram} target="_blank" rel="noopener noreferrer">
-                Instagram<span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            </li>
-            <li>
-              <a className="text-link font-semibold" href={site.linkedin} target="_blank" rel="noopener noreferrer">
-                LinkedIn<span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            </li>
-          </ul>
+          <p className="mt-8 text-[1.02rem]">
+            Prefer email?{" "}
+            <a className="text-link font-semibold" href={`mailto:${site.email}`}>
+              {site.email}
+            </a>
+          </p>
         </div>
 
         <form
           ref={formRef}
           noValidate
           onSubmit={onSubmit}
-          className="grid gap-6 rounded-[14px] border border-charcoal/25 bg-ivory p-6 sm:p-9 lg:col-span-7"
+          aria-busy={sending}
+          className="grid gap-6 rounded-[14px] border border-line bg-ivory p-6 shadow-[0_24px_40px_-32px_rgb(58_34_48_/_0.5)] sm:p-9 lg:col-span-7"
           data-reveal
-          style={{ "--d": "120ms" } as React.CSSProperties}
+          style={{ "--d": "100ms" } as React.CSSProperties}
         >
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="field">
@@ -159,42 +174,60 @@ export function ContactSection() {
             <textarea {...field("message")} />
             {err("message")}
           </div>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="field">
+              <label htmlFor={`${uid}-budget`}>
+                Budget <span className="font-normal text-ink-soft">(optional)</span>
+              </label>
+              <input id={`${uid}-budget`} name="budget" type="text" autoComplete="off" />
+            </div>
+            <div className="field">
+              <label htmlFor={`${uid}-timeline`}>
+                Timeline <span className="font-normal text-ink-soft">(optional)</span>
+              </label>
+              <input id={`${uid}-timeline`} name="timeline" type="text" autoComplete="off" />
+            </div>
+          </div>
+
+          {/* Honeypot: hidden from people and assistive tech. */}
+          <div className="hp" aria-hidden="true">
+            <label>
+              Website
+              <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+            </label>
+          </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            <button type="submit" className="btn btn-plum" disabled={state.kind === "sending"}>
-              {endpoint ? (state.kind === "sending" ? "Sending" : "Send inquiry") : "Prepare my email"}
+            <button type="submit" className="btn btn-primary" disabled={sending}>
+              {sending ? "Sending" : "Send inquiry"}
               <span className="arrow" aria-hidden="true">&rarr;</span>
             </button>
-            {!endpoint && (
-              <p className="max-w-sm text-[0.92rem] text-ink-soft">
-                This form has no server behind it yet. It opens your email app with your message ready, and nothing
-                is sent until you press Send there.
-              </p>
-            )}
           </div>
 
           <div aria-live="polite" role="status">
-            {state.kind === "mailto" && (
-              <div className="rounded-[10px] border border-charcoal/25 p-4 text-[0.95rem]">
-                <p>
-                  Your email app should open with the message prepared. Nothing has been sent yet. If nothing opened,{" "}
-                  <a className="text-link font-semibold" href={state.href}>
-                    try again
-                  </a>{" "}
-                  or write to <strong>{site.email}</strong> and paste this:
-                </p>
-                <pre className="mt-3 whitespace-pre-wrap break-words font-sans text-[0.9rem] text-ink-soft">{state.body}</pre>
-              </div>
+            {state.kind === "sent" && (
+              <p className="font-semibold">Thank you. Your inquiry was received, and I&rsquo;ll reply by email.</p>
             )}
-            {state.kind === "sent" && <p className="font-semibold">Thank you. Your message was received.</p>}
             {state.kind === "failed" && (
-              <p className="error">
-                Your message could not be sent. Please email{" "}
+              <p className="error" role="alert">
+                Your message could not be sent. It is still in the form, so you can try again, or email{" "}
                 <a className="text-link font-semibold" href={`mailto:${site.email}`}>
                   {site.email}
-                </a>{" "}
-                instead.
+                </a>
+                .
               </p>
+            )}
+            {state.kind === "fallback" && (
+              <div className="rounded-[10px] border border-line p-4 text-[0.95rem]">
+                <p>
+                  Sending from this page isn&rsquo;t available right now, and nothing has been sent. Your message is
+                  still in the form.{" "}
+                  <a className="text-link font-semibold" href={state.href}>
+                    Open it in your email app
+                  </a>{" "}
+                  or write to <strong>{site.email}</strong>.
+                </p>
+              </div>
             )}
           </div>
         </form>

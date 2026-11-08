@@ -1,0 +1,48 @@
+  /* ---------- Form ---------- */
+  .field label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.45rem;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    background: var(--field-bg);
+    color: var(--color-charcoal);
+    border: 1.5px solid var(--field-border);
+    border-radius: var(--radius-field);
+    padding: 0.85rem 1rem;
+    font: inherit;
+    min-height: 3rem;
+  }
+  .field textarea {
+    min-height: 8.5rem;
+    resize: vertical;
+  }
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: var(--field-placeholder);
+  }
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    outline: 3px solid var(--color-plum);
+    outline-offset: 1px;
+    border-color: var(--color-plum);
+  }
+  .field [aria-invalid="true"] {
+    border-color: #c0485f;
+  }
+  .field .error,
+  .error {
+    color: #b0334a;
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+  }
+  [data-theme="dark"] .field .error,
+  [data-theme="dark"] .error {
+    color: #f19aad;
+  }
+

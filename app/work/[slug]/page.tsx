@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import { getProject, nextProject, projects } from "@/content/projects";
-import { BrowserFrame, PhoneFrame } from "@/components/Frames";
-import { PhoneVideo, VideoPreview } from "@/components/VideoPreview";
+import { extras } from "@/content/extras";
+import { CropImage, PhoneVideo, StageMedia } from "@/components/Media";
 import { Reveal } from "@/components/Reveal";
-import { Float } from "@/components/Float";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -26,209 +27,219 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const p = getProject(slug);
   if (!p) notFound();
+  const x = extras[p.slug];
   const next = nextProject(p.slug);
+  const nextPoster = next.video && next.video.kind !== "phone" ? next.video.poster : next.desktop[0].src;
+  const lead = p.video && p.video.kind !== "phone" ? { src: p.video.poster, w: p.video.w, h: p.video.h } : p.desktop[0];
+  const shared = { aspectRatio: `${lead.w} / ${lead.h}`, viewTransitionName: `case-${p.slug}` } as CSSProperties;
 
   return (
     <article className="page-in">
-      <header className="wrap pb-12 pt-14 md:pt-20">
+      <header className="wrap pb-12 pt-12 md:pt-16">
         <nav aria-label="Breadcrumb" className="text-[0.95rem] text-ink-soft">
           <Link href="/#work" className="text-link">
             Work
           </Link>{" "}
           / <span aria-current="page">{p.name}</span>
         </nav>
-        <h1 className="display mt-6 text-[clamp(3rem,8vw,7.5rem)]">{p.name}</h1>
-        <p className="mt-2 text-[1.05rem] font-semibold text-plum">{p.category}</p>
-        <p className="measure mt-8 text-[1.2rem] leading-[1.55]">{p.intro}</p>
-        <div className="mt-9 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap items-end gap-x-6 gap-y-3">
+          <h1 className="display text-[clamp(3rem,8vw,7rem)]">{p.name}</h1>
+          <span className="badge mb-3">{p.status.label}</span>
+        </div>
+        <p className="mt-1 text-[1.05rem] font-semibold text-plum">{p.category}</p>
+        <p className="measure mt-7 text-[1.2rem] leading-[1.55]">{p.intro}</p>
+        <p className="mt-3 max-w-xl text-[0.92rem] text-ink-soft">{p.status.note}</p>
+        <div className="mt-8 flex flex-wrap gap-3">
           <a href={p.liveUrl} className="btn btn-primary" target="_blank" rel="noopener noreferrer">
             Visit website <span className="arrow" aria-hidden="true">&rarr;</span>
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
-          <Link href="/#contact" className="btn btn-ghost">
+          <Link href="/#contact" className="btn btn-secondary">
             Discuss a project
           </Link>
         </div>
       </header>
 
-      <section className="wrap pb-20" aria-label={`${p.name} preview`}>
-        {/* Not wrapped in a reveal: this frame is the target of the shared-element transition from the home page. */}
-        {p.video && p.video.kind !== "phone" ? (
-          <VideoPreview video={p.video} url={p.liveUrl} vtName={`case-${p.slug}`} />
-        ) : (
-          <BrowserFrame shot={p.desktop[0]} url={p.liveUrl} priority vtName={`case-${p.slug}`} sizes="(min-width: 1320px) 1320px, 100vw" />
-        )}
-        <p className="mt-3 text-[0.92rem] text-ink-soft">
-          {p.video && p.video.kind !== "phone" ? "Screen recording of the real project." : p.desktop[0].caption}
-        </p>
+      {/* Large showcase, early. This frame carries the shared transition name from the home page. */}
+      <section className="wrap pb-16" aria-label={`${p.name} showcase`}>
+        <div className="frame" style={shared}>
+          <Image src={lead.src} alt={p.desktop[0].alt} fill priority sizes="(min-width: 1320px) 1224px, 100vw" className="object-cover" />
+        </div>
       </section>
 
-      <section className="bg-sand py-20" aria-label="Project facts">
-        <dl className="wrap grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+      <section className="border-y border-line bg-sand" aria-label="Project facts">
+        <dl className="wrap grid gap-8 py-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <dt className="font-semibold">Status</dt>
-            <dd className="mt-2 text-[0.98rem]">
-              <strong className="font-semibold">{p.status.label}.</strong>{" "}
-              <span className="text-ink-soft">{p.status.note}</span>
+            <dt className="text-[0.9rem] font-semibold text-ink-soft">Role</dt>
+            <dd className="mt-2 space-y-0.5">
+              {p.role.map((r) => (
+                <p key={r}>{r}</p>
+              ))}
             </dd>
           </div>
           <div>
-            <dt className="font-semibold">My role</dt>
-            <dd className="mt-2 text-[0.98rem] text-ink-soft">
-              <ul className="space-y-1">
-                {p.role.map((r) => (
-                  <li key={r}>{r}</li>
-                ))}
-              </ul>
-            </dd>
+            <dt className="text-[0.9rem] font-semibold text-ink-soft">Scope</dt>
+            <dd className="mt-2">{x.scope}</dd>
           </div>
           <div>
-            <dt className="font-semibold">Intended audience</dt>
-            <dd className="mt-2 text-[0.98rem] text-ink-soft">{p.audience}</dd>
+            <dt className="text-[0.9rem] font-semibold text-ink-soft">Project type</dt>
+            <dd className="mt-2">{p.status.label}</dd>
           </div>
           <div>
-            <dt className="font-semibold">Built with</dt>
-            <dd className="mt-2 text-[0.98rem] text-ink-soft">{p.stack}</dd>
+            <dt className="text-[0.9rem] font-semibold text-ink-soft">Technology</dt>
+            <dd className="mt-2">{p.stack}</dd>
           </div>
         </dl>
       </section>
 
-      <section className="wrap grid gap-14 py-24 lg:grid-cols-12" aria-labelledby="goals-h">
-        <Reveal className="lg:col-span-4">
-          <h2 id="goals-h" data-mask className="display text-[clamp(2rem,3.6vw,3rem)]">
-            Design <em>goals</em>
+      <section className="wrap py-20 md:py-28" aria-labelledby="decisions-h">
+        <Reveal>
+          <h2 id="decisions-h" className="display text-[clamp(2rem,3.8vw,3.2rem)]">
+            Three design <em>decisions</em>
           </h2>
-          <p className="mt-4 text-[0.95rem] text-ink-soft">
-            These are the intentions behind the design. No results or performance figures are claimed.
-          </p>
         </Reveal>
-        <Reveal as="ul" delay={100} className="space-y-6 text-[1.1rem] lg:col-span-7 lg:col-start-6">
-          {p.goals.map((g) => (
-            <li key={g} className="border-t border-line pt-5">
-              {g}
-            </li>
+        <div className="mt-12 grid gap-x-8 gap-y-12 md:grid-cols-12">
+          {p.decisions.map((d, i) => (
+            <Reveal key={d.title} delay={i * 70} className={i === 0 ? "md:col-span-6" : "md:col-span-3"}>
+              <CropImage
+                crop={x.decisionMedia[i]}
+                aspect={i === 0 ? "4 / 3" : "3 / 4"}
+                sizes={i === 0 ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 25vw, 100vw"}
+              />
+              <p className="num mt-5 text-ink-soft">{String(i + 1).padStart(2, "0")}</p>
+              <h3 className="display mt-1 text-[1.5rem] leading-[1.15]">{d.title}</h3>
+              <p className="mt-3 text-[0.98rem] text-ink-soft">{d.body}</p>
+            </Reveal>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-line bg-sand" aria-labelledby="interaction-h">
+        <div className="wrap grid items-center gap-12 py-20 md:py-28 lg:grid-cols-12">
+          <Reveal className="lg:col-span-5">
+            <h2 id="interaction-h" className="display text-[clamp(2rem,3.8vw,3.2rem)]">
+              The <em>interaction</em>
+            </h2>
+            <ul className="mt-8 space-y-4 text-[1.02rem]">
+              {p.interactions.map((i) => (
+                <li key={i} className="flex gap-4">
+                  <span aria-hidden="true" className="mt-[0.8em] h-px w-5 shrink-0 bg-plum" />
+                  {i}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+          <Reveal delay={80} className={`lg:col-span-7 ${p.video?.kind === "phone" ? "mx-auto w-full max-w-[16rem] lg:max-w-[18rem]" : ""}`}>
+            {p.video?.kind === "phone" ? <PhoneVideo video={p.video} /> : <StageMedia project={p} />}
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="wrap py-20 md:py-28" aria-labelledby="screens-h">
+        <Reveal>
+          <h2 id="screens-h" className="display text-[clamp(2rem,3.8vw,3.2rem)]">
+            Desktop and <em>mobile</em>
+          </h2>
         </Reveal>
-      </section>
-
-      <section className="on-dark bg-plum-deep py-24 text-paper" aria-labelledby="decisions-h">
-        <div className="wrap">
-          <Reveal>
-            <h2 id="decisions-h" data-mask className="display text-[clamp(2rem,3.6vw,3rem)]">
-              Key design <em>decisions</em>
-            </h2>
-          </Reveal>
-          <div className="mt-12 grid gap-10 md:grid-cols-3">
-            {p.decisions.map((d, i) => (
-              <Reveal key={d.title} delay={i * 90} className="border-t border-paper/35 pt-6">
-                <h3 className="display text-[1.5rem] leading-[1.15]">{d.title}</h3>
-                <p className="mt-4 text-[0.98rem] text-paper/85">{d.body}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="wrap py-24" aria-labelledby="interactions-h">
-        <div className="grid gap-14 lg:grid-cols-12">
-          <Reveal className="lg:col-span-4">
-            <h2 id="interactions-h" data-mask className="display text-[clamp(2rem,3.6vw,3rem)]">
-              Implemented <em>interactions</em>
-            </h2>
-            <p className="mt-4 text-[0.95rem] text-ink-soft">What the live project actually does today.</p>
-          </Reveal>
-          <Reveal as="ul" delay={100} className="space-y-4 text-[1.05rem] lg:col-span-7 lg:col-start-6">
-            {p.interactions.map((x) => (
-              <li key={x} className="flex gap-4">
-                <span aria-hidden="true" className="mt-[0.8em] h-px w-5 shrink-0 bg-plum" />
-                {x}
-              </li>
-            ))}
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="bg-sand py-24" aria-labelledby="screens-h">
-        <div className="wrap">
-          <Reveal>
-            <h2 id="screens-h" data-mask className="display text-[clamp(2rem,3.6vw,3rem)]">
-              On desktop and <em>mobile</em>
-            </h2>
-            {p.imageNote && <p className="mt-4 max-w-2xl text-[0.95rem] text-ink-soft">{p.imageNote}</p>}
-          </Reveal>
-          <div className="mt-12 grid gap-10 md:grid-cols-2">
-            {p.desktop.map((s, i) => (
-              <Reveal key={s.src} delay={i * 80}>
+        <div className="mt-12 grid items-start gap-10 md:grid-cols-12">
+          <div className="grid gap-8 md:col-span-8">
+            {p.desktop.map((s) => (
+              <Reveal key={s.src}>
                 <figure>
-                  <BrowserFrame shot={s} url={p.liveUrl} sizes="(min-width: 768px) 46vw, 100vw" />
+                  <div className="frame" style={{ aspectRatio: `${s.w} / ${s.h}` }}>
+                    <Image src={s.src} alt={s.alt} fill sizes="(min-width: 768px) 66vw, 100vw" className="object-cover" />
+                  </div>
                   <figcaption className="mt-3 text-[0.92rem] text-ink-soft">{s.caption}</figcaption>
                 </figure>
               </Reveal>
             ))}
           </div>
-          <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-6 sm:gap-10 md:grid-cols-3">
-            {p.video?.kind === "phone" && (
-              <Reveal>
+          <div className="grid grid-cols-2 gap-6 md:col-span-4 md:grid-cols-1">
+            {p.mobile.map((s) => (
+              <Reveal key={s.src}>
                 <figure>
-                  <PhoneVideo video={p.video} />
-                  <figcaption className="mt-3 text-[0.92rem] text-ink-soft">Recording of the companion app.</figcaption>
+                  <div className="phone">
+                    <Image src={s.src} alt={s.alt} width={s.w} height={s.h} sizes="(min-width: 768px) 22vw, 44vw" />
+                  </div>
+                  <figcaption className="mt-3 text-[0.92rem] text-ink-soft">{s.caption}</figcaption>
                 </figure>
-              </Reveal>
-            )}
-            {p.mobile.map((s, i) => (
-              <Reveal key={s.src} delay={i * 90}>
-                <Float distance={i % 2 ? -18 : 18}>
-                  <figure>
-                    <PhoneFrame shot={s} sizes="(min-width: 768px) 26vw, 44vw" />
-                    <figcaption className="mt-3 text-[0.92rem] text-ink-soft">{s.caption}</figcaption>
-                  </figure>
-                </Float>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="wrap grid gap-14 py-24 lg:grid-cols-12" aria-labelledby="impl-h">
-        <Reveal className="lg:col-span-4">
-          <h2 id="impl-h" data-mask className="display text-[clamp(2rem,3.6vw,3rem)]">
-            Under the <em>surface</em>
-          </h2>
-        </Reveal>
-        <Reveal delay={100} className="lg:col-span-7 lg:col-start-6">
-          <ul className="space-y-4 text-[1.02rem]">
-            {p.implementation.map((x) => (
-              <li key={x} className="flex gap-4">
-                <span aria-hidden="true" className="mt-[0.8em] h-px w-5 shrink-0 bg-plum" />
-                {x}
-              </li>
-            ))}
-          </ul>
-          <ul className="mt-10 flex flex-wrap gap-x-6 gap-y-2" aria-label="Project colours">
-            {p.palette.map((c) => (
-              <li key={c.hex} className="flex items-center gap-2 text-[0.92rem]">
-                <span className="inline-block h-5 w-5 rounded-full border border-charcoal/30" style={{ background: c.hex }} aria-hidden="true" />
-                {c.name} {c.hex}
-              </li>
-            ))}
-          </ul>
-          <a href={p.liveUrl} className="btn btn-ghost mt-10" target="_blank" rel="noopener noreferrer">
-            Visit the live site <span className="sr-only">(opens in a new tab)</span>
-          </a>
-        </Reveal>
+      <section className="border-t border-line" aria-labelledby="tech-h">
+        <div className="wrap py-14">
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-2">
+              <h2 id="tech-h" className="display text-[clamp(1.6rem,2.6vw,2.2rem)]">
+                Technical <em>details</em>
+              </h2>
+              <span className="btn btn-secondary !min-h-11 !px-4">
+                <span className="group-open:hidden">Show</span>
+                <span className="hidden group-open:inline">Hide</span>
+              </span>
+            </summary>
+            <div className="mt-8 grid gap-12 md:grid-cols-3">
+              <div>
+                <h3 className="font-semibold">Audience and goals</h3>
+                <p className="mt-3 text-ink-soft">{p.audience}</p>
+                <ul className="mt-3 space-y-2 text-ink-soft">
+                  {p.goals.map((g) => (
+                    <li key={g}>{g}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold">Implementation</h3>
+                <ul className="mt-3 space-y-2 text-ink-soft">
+                  {p.implementation.map((g) => (
+                    <li key={g}>{g}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold">Colour and imagery</h3>
+                <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2" aria-label="Project colours">
+                  {p.palette.map((c) => (
+                    <li key={c.hex} className="flex items-center gap-2 text-[0.92rem]">
+                      <span className="inline-block h-5 w-5 rounded-full border border-line" style={{ background: c.hex }} aria-hidden="true" />
+                      {c.name} {c.hex}
+                    </li>
+                  ))}
+                </ul>
+                {p.imageNote && <p className="mt-4 text-ink-soft">{p.imageNote}</p>}
+              </div>
+            </div>
+          </details>
+        </div>
       </section>
 
-      <section className="on-dark py-24 text-paper" style={{ background: next.tone }} aria-label="Next project">
-        <div className="wrap flex flex-col items-start justify-between gap-10 md:flex-row md:items-end">
-          <div>
+      <section className="on-dark text-paper" style={{ background: next.tone }} aria-label="Next project">
+        <div className="wrap grid items-center gap-10 py-16 md:py-20 lg:grid-cols-12">
+          <div className="lg:col-span-6">
             <p className="text-[0.95rem] text-paper/80">Next project</p>
-            <a href={`/work/${next.slug}`} className="display mt-3 block text-[clamp(2.4rem,6vw,5.4rem)] hover:text-[#f3d3de]">
+            <a href={`/work/${next.slug}`} className="display mt-3 block text-[clamp(2.6rem,6vw,5.4rem)]">
               {next.name} <span aria-hidden="true">&rarr;</span>
             </a>
             <p className="mt-2 text-paper/80">{next.category}</p>
           </div>
-          <Link href="/#contact" className="btn btn-light">
-            Discuss a project
+          <a href={`/work/${next.slug}`} tabIndex={-1} aria-hidden="true" className="lg:col-span-6">
+            <div className="frame" style={{ aspectRatio: "16 / 9" }}>
+              <Image src={nextPoster} alt="" fill sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section className="bg-sand">
+        <div className="wrap flex flex-col items-start justify-between gap-6 py-14 md:flex-row md:items-center">
+          <p className="display max-w-2xl text-[clamp(1.8rem,3.4vw,2.8rem)]">
+            Have something <em>similar</em> in mind?
+          </p>
+          <Link href="/#contact" className="btn btn-primary">
+            Discuss a project <span className="arrow" aria-hidden="true">&rarr;</span>
           </Link>
         </div>
       </section>

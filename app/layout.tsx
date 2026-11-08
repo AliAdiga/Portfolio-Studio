@@ -5,7 +5,6 @@ import { site } from "@/content/site";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { RevealObserver } from "@/components/RevealObserver";
-import { CursorLabel } from "@/components/CursorLabel";
 
 const serif = Newsreader({
   subsets: ["latin"],
@@ -35,15 +34,19 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F4EFE7",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F4EFE7" },
+    { media: "(prefers-color-scheme: dark)", color: "#17120F" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
 
-// Runs before first paint: marks JS as available (so reveal styles only apply when they can resolve)
-// and restores a saved dark theme without a flash. Light is the default.
+// Runs before first paint. Marks JS as available (so reveal styles only apply when they can resolve),
+// then applies the saved theme, or the system preference when there is no saved choice.
 const initScript =
-  "document.documentElement.classList.add('js');try{if(localStorage.getItem('theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}";
+  "(function(){var d=document.documentElement;d.classList.add('js');var t=null;try{t=localStorage.getItem('theme')}catch(e){}" +
+  "if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}d.dataset.theme=t})()";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -60,7 +63,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main">{children}</main>
         <Footer />
         <RevealObserver />
-        <CursorLabel />
       </body>
     </html>
   );

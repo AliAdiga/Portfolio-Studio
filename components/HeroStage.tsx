@@ -1,154 +1,134 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "motion/react";
-import { projects } from "@/content/projects";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { projects, type Project } from "@/content/projects";
+import { extras } from "@/content/extras";
+import { PlayButton, useVisibleVideo } from "./Media";
 
-/**
- * A deliberate stack, not a slider. DAR starts in front; the other three peek
- * from behind so their identities are visible at once. Choosing one brings it
- * forward. There is no autoplay, so nothing needs a pause control.
- * Depth: on devices with a fine pointer, frames drift slightly with the cursor.
- */
-const slots = [
-  { x: "0%", y: "0%", scale: 1, z: 4 },
-  { x: "10%", y: "-10%", scale: 0.94, z: 3 },
-  { x: "18%", y: "-19%", scale: 0.88, z: 2 },
-  { x: "25%", y: "-28%", scale: 0.82, z: 1 },
-];
+const poster = (p: Project) => (p.video && p.video.kind !== "phone" ? p.video.poster : p.desktop[0].src);
+const num = (i: number) => String(i + 1).padStart(2, "0");
 
-function Frame({
-  i,
-  slot,
-  focused,
-  onPick,
-  mx,
-  my,
-  reduce,
-}: {
-  i: number;
-  slot: number;
-  focused: boolean;
-  onPick: () => void;
-  mx: MotionValue<number>;
-  my: MotionValue<number>;
-  reduce: boolean;
-}) {
-  const p = projects[i];
-  const s = slots[slot];
-  const depth = (4 - slot) * 5; // front frames move more
-  const px = useTransform(mx, [-0.5, 0.5], [-depth, depth]);
-  const py = useTransform(my, [-0.5, 0.5], [-depth * 0.6, depth * 0.6]);
-  const shot = p.desktop[0];
+/** The recording for the active project, laid over its poster. Nothing loads until it is visible. */
+function HeroVideo({ video }: { video: NonNullable<Project["video"]> }) {
+  const { ref, playing, setPlaying, toggle } = useVisibleVideo();
   return (
-    <motion.div
-      className="absolute bottom-0 left-0 w-[82%] sm:w-[84%]"
-      initial={false}
-      animate={{ x: s.x, y: s.y, scale: s.scale }}
-      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 140, damping: 22 }}
-      style={{ zIndex: s.z, transformOrigin: "0% 100%" }}
-    >
-      <motion.div style={reduce ? undefined : { x: px, y: py }} className="relative">
-        <div className="browser">
-          <div className="browser-bar" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-            <span>{p.liveUrl.replace(/^https?:\/\//, "")}</span>
-          </div>
-          <Image
-            src={shot.src}
-            alt={focused ? shot.alt : ""}
-            width={shot.w}
-            height={shot.h}
-            sizes="(min-width: 1024px) 46vw, 90vw"
-            priority={i === 0}
-            className="block h-auto w-full"
-          />
-        </div>
-        {!focused && (
-          <button
-            type="button"
-            onClick={onPick}
-            className="absolute inset-0 cursor-pointer rounded-[14px] bg-transparent"
-            aria-label={`Bring ${p.name} to the front`}
-          />
-        )}
-      </motion.div>
-    </motion.div>
+    <>
+      <video
+        ref={ref}
+        className="absolute inset-0 h-full w-full object-cover"
+        poster={video.poster}
+        muted
+        loop
+        playsInline
+        preload="none"
+        aria-label={video.alt}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+      >
+        <source src={video.src} type="video/mp4" />
+      </video>
+      <PlayButton playing={playing} toggle={toggle} label="project preview" />
+    </>
   );
 }
 
+/**
+ * One dominant project at a time, with only a hint of the next one behind it.
+ * Choosing a project coordinates the visual, title, category, selector and the hero tint.
+ * No autoplay carousel: the visitor chooses.
+ */
 export function HeroStage() {
   const reduce = !!useReducedMotion();
-  const [order, setOrder] = useState([0, 1, 2, 3]); // project indices, front first
-  const mx = useSpring(useMotionValue(0), { stiffness: 80, damping: 20 });
-  const my = useSpring(useMotionValue(0), { stiffness: 80, damping: 20 });
+  const [active, setActive] = useState(0);
+  const root = useRef<HTMLDivElement>(null);
+  const p = projects[active];
+  const next = projects[(active + 1) % projects.length];
+  const dur = reduce ? 0 : 0.48;
+  const ease = [0.3, 0.8, 0.3, 1] as const;
 
-  const pick = (i: number) => setOrder((o) => [i, ...o.filter((x) => x !== i)]);
-  const front = projects[order[0]];
+  // The hero's tint follows the selected project (a registered CSS property transitions it).
+  useEffect(() => {
+    root.current?.closest<HTMLElement>(".hero")?.style.setProperty("--hero-accent", extras[p.slug].accent);
+  }, [p.slug]);
 
   return (
-    <div
-      className="w-full"
-      onPointerMove={(e) => {
-        if (reduce || e.pointerType !== "mouse") return;
-        const r = e.currentTarget.getBoundingClientRect();
-        mx.set((e.clientX - r.left) / r.width - 0.5);
-        my.set((e.clientY - r.top) / r.height - 0.5);
-      }}
-      onPointerLeave={() => {
-        mx.set(0);
-        my.set(0);
-      }}
-    >
-      <div className="relative w-full" style={{ aspectRatio: "1.12 / 1" }} role="group" aria-label="Featured projects">
-        {projects.map((_, i) => (
-          <Frame
-            key={i}
-            i={i}
-            slot={order.indexOf(i)}
-            focused={order[0] === i}
-            onPick={() => pick(i)}
-            mx={mx}
-            my={my}
-            reduce={reduce}
-          />
-        ))}
+    <div ref={root} className="w-full">
+      <div className="relative" style={{ aspectRatio: "16 / 10" }} role="group" aria-label="Featured project">
+        <div className="stage-peek" aria-hidden="true">
+          <Image src={poster(next)} alt="" fill sizes="40vw" className="object-cover" />
+        </div>
+        <div className="frame absolute inset-0">
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={p.slug}
+              className="absolute inset-0"
+              initial={{ opacity: 0, scale: reduce ? 1 : 1.025 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: dur, ease }}
+            >
+              <Image
+                src={poster(p)}
+                alt={p.desktop[0].alt}
+                fill
+                priority={active === 0}
+                sizes="(min-width: 1024px) 52vw, 100vw"
+                className="object-cover"
+                style={{ objectPosition: p.slug === "zaytoun" ? "8% 50%" : "50% 50%" }}
+              />
+              {p.video && p.video.kind !== "phone" && <HeroVideo video={p.video} />}
+              <a href={`/work/${p.slug}`} tabIndex={-1} aria-hidden="true" className="absolute inset-0 z-10" />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+      <div className="mt-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div aria-live="polite" className="min-w-0">
-          <p className="display text-2xl leading-tight">{front.name}</p>
-          <p className="text-[0.95rem] text-ink-soft">
-            {front.category}. {front.status.label}.
-          </p>
+          <motion.div
+            key={p.slug}
+            initial={{ opacity: 0, y: reduce ? 0 : 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: dur, ease }}
+          >
+            <p className="display text-[1.7rem] leading-tight">{p.name}</p>
+            <p className="text-[0.95rem] text-ink-soft">
+              {p.category} <span className="badge ml-1 align-middle">{p.status.label}</span>
+            </p>
+          </motion.div>
         </div>
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-          <ul className="flex gap-1.5" aria-label="Choose a project">
-            {projects.map((p, i) => (
-              <li key={p.slug}>
-                <button
-                  type="button"
-                  onClick={() => pick(i)}
-                  aria-pressed={order[0] === i}
-                  className={`min-h-11 rounded-full border px-3.5 text-[0.88rem] font-semibold transition-colors ${
-                    order[0] === i
-                      ? "border-charcoal bg-charcoal text-ivory"
-                      : "border-charcoal/45 text-charcoal hover:border-charcoal"
-                  }`}
-                >
-                  {p.name.split(" ")[0]}
-                </button>
-              </li>
-            ))}
-          </ul>
-          <Link href={`/work/${front.slug}`} className="text-link text-[0.97rem] font-semibold">
-            View case study
-          </Link>
-        </div>
+        <a href={`/work/${p.slug}`} className="cs-link">
+          <span className="label">View case study</span>
+          <span className="ring" aria-hidden="true">&rarr;</span>
+        </a>
       </div>
+
+      <ol className="mt-4 flex flex-wrap gap-x-1 border-t border-line" aria-label="Choose a project">
+        {projects.map((proj, i) => (
+          <li key={proj.slug} className="relative">
+            <button
+              type="button"
+              onClick={() => setActive(i)}
+              aria-pressed={active === i}
+              className={`flex min-h-11 items-baseline gap-2 px-3 pt-2 text-[0.95rem] font-semibold transition-colors duration-[180ms] ${
+                active === i ? "text-charcoal" : "text-ink-soft hover:text-charcoal"
+              }`}
+            >
+              <span className="num">{num(i)}</span>
+              {proj.name.split(" ")[0]}
+            </button>
+            {active === i && (
+              <motion.span
+                layoutId="hero-tab"
+                aria-hidden="true"
+                className="absolute inset-x-3 -top-px h-[2px] bg-[var(--c-marker)]"
+                transition={{ duration: dur, ease }}
+              />
+            )}
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
