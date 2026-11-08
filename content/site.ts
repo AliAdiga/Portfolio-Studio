@@ -27,16 +27,19 @@ export const services = [
     title: "Business and brand websites",
     body: "A complete site for your business: clear pages and a visual style that fits you. You receive a finished site that works well on a phone and reads comfortably in English, Arabic, or both.",
     receive: ["Page designs and the finished build", "Mobile and desktop layouts", "A short guide for editing content"],
+    crop: { src: "/work/caucasus/menu-desktop.webp", pos: "50% 40%", slug: "caucasus-sweets-home", project: "Caucasus Sweets Home", alt: "A close view of the Caucasus Sweets Home menu and prices page." },
   },
   {
     title: "Interactive web experiences",
     body: "When a page needs to show something rather than say it: a room you can walk through, a product that moves, a menu that feels like a book. Interaction is added where it explains the work, and kept out of the way of the essentials.",
     receive: ["One or two signature interactions", "Keyboard and reduced-motion support", "A calm fallback for older devices"],
+    crop: { src: "/work/dar/explorer-desktop.webp", pos: "30% 55%", slug: "dar", project: "DAR", alt: "A close view of the DAR room explorer showing the isometric plan and time-of-day controls." },
   },
   {
     title: "Website redesigns",
     body: "If your current site no longer represents you, I start by keeping what works: your content, your structure, your search presence. Then I rebuild the design and the code around it so it looks and feels current.",
     receive: ["A review of what to keep and what to retire", "A redesigned, rebuilt site", "A redirect plan for existing pages"],
+    crop: { src: "/work/zaytoun/site-desktop.webp", pos: "12% 85%", slug: "zaytoun", project: "Zaytoun", alt: "A close view of the Zaytoun home page headline and its reserve and menu buttons." },
   },
 ] as const;
 

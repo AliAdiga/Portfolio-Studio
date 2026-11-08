@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import type { Shot } from "@/content/projects";
 
 export function BrowserFrame({
@@ -7,15 +8,23 @@ export function BrowserFrame({
   priority = false,
   sizes = "(min-width: 1024px) 60vw, 100vw",
   className = "",
+  vtName,
+  href,
+  cursor = "View",
 }: {
   shot: Shot;
   url: string;
   priority?: boolean;
   sizes?: string;
   className?: string;
+  /** Shared-element transition name, matched on the case-study page. */
+  vtName?: string;
+  /** Optional link overlay; the real link text lives elsewhere, so this is hidden from assistive tech. */
+  href?: string;
+  cursor?: string;
 }) {
   return (
-    <div className={`browser ${className}`}>
+    <div className={`browser relative ${className}`} style={vtName ? ({ viewTransitionName: vtName } as CSSProperties) : undefined}>
       <div className="browser-bar" aria-hidden="true">
         <i />
         <i />
@@ -31,6 +40,7 @@ export function BrowserFrame({
         priority={priority}
         className="block h-auto w-full"
       />
+      {href && <a href={href} tabIndex={-1} aria-hidden="true" data-cursor={cursor} className="absolute inset-0" />}
     </div>
   );
 }

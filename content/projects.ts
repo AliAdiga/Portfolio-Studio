@@ -37,7 +37,9 @@ export type Project = {
   desktop: Shot[];
   mobile: Shot[];
   /** Optional authentic screen recording. */
-  video?: { src: string; poster: string; w: number; h: number; alt: string };
+  video?: { src: string; poster: string; w: number; h: number; alt: string; kind?: "browser" | "phone" };
+  /** Solid colour taken from the project, used when it floods the next-project panel. */
+  tone: string;
   imageNote?: string;
 };
 
@@ -100,6 +102,7 @@ export const projects: Project[] = [
       "Automated accessibility audits in both languages and a 320 px reflow check.",
     ],
     stack: "Next.js, React, TypeScript, CSS modules",
+    tone: "#684450",
     liveUrl: "https://dar-architecture.vercel.app",
     palette: [
       { name: "Limestone", hex: "#F5EEE1" },
@@ -174,6 +177,7 @@ export const projects: Project[] = [
       "Structured data and a theme colour set in the page head.",
     ],
     stack: "Vite, GSAP, Lenis, vanilla JavaScript",
+    tone: "#2b0b13",
     liveUrl: "https://aurelle-perfume-ashen.vercel.app",
     palette: [
       { name: "Noir", hex: "#080808" },
@@ -188,6 +192,13 @@ export const projects: Project[] = [
       m("/work/aurelle/home-mobile.webp", "Aurelle home page on a phone showing the Ember perfume scene.", "Home gallery on a 390 px screen."),
       m("/work/aurelle/women-mobile.webp", "Aurelle Pour Elle page on a phone.", "Pour Elle on a 390 px screen."),
     ],
+    video: {
+      src: "/work/aurelle/preview.mp4",
+      poster: "/work/aurelle/home-desktop.webp",
+      w: 1120,
+      h: 700,
+      alt: "Screen recording of the Aurelle home gallery moving between fragrance scenes with the next button.",
+    },
     imageNote: "Product photography on Aurelle is AI-generated.",
   },
   {
@@ -242,6 +253,7 @@ export const projects: Project[] = [
       "Restaurant structured data and a cookie consent notice on the website.",
     ],
     stack: "Next.js, Expo, React Native, Supabase",
+    tone: "#4A5E3A",
     liveUrl: "https://zaytoun-restaurant.vercel.app",
     palette: [
       { name: "Olive", hex: "#4A5E3A" },
@@ -256,6 +268,14 @@ export const projects: Project[] = [
       m("/work/zaytoun/app-menu-mobile.webp", "The Zaytoun app menu on a phone listing Mezze Royale, Kibbeh Nayeh and Fatayer Trio with prices.", "Companion app menu on a 390 px screen."),
       m("/work/zaytoun/app-reserve-mobile.webp", "The Zaytoun app reservation form with name, phone, date and time slots.", "Companion app reservation form."),
     ],
+    video: {
+      src: "/work/zaytoun/app-preview.mp4",
+      poster: "/work/zaytoun/app-menu-mobile.webp",
+      w: 360,
+      h: 780,
+      kind: "phone",
+      alt: "Screen recording of the Zaytoun app: the menu scrolling through starters, then the reservation form.",
+    },
     imageNote: "Website screenshot was captured earlier from the live deployment. App screens are the Expo web build run locally.",
   },
   {
@@ -311,6 +331,7 @@ export const projects: Project[] = [
       "The same content also runs as a separate Android app built with Expo.",
     ],
     stack: "HTML, CSS, JavaScript, Python build script, Expo",
+    tone: "#6E1F2C",
     liveUrl: "https://caucasus-sweets-home.vercel.app",
     palette: [
       { name: "Burgundy", hex: "#6E1F2C" },
@@ -324,6 +345,13 @@ export const projects: Project[] = [
       m("/work/caucasus/home-mobile.webp", "Caucasus Sweets Home home page on a phone.", "Home page on a 390 px screen."),
       m("/work/caucasus/menu-mobile.webp", "Caucasus Sweets Home menu page on a phone.", "Menu on a 390 px screen."),
     ],
+    video: {
+      src: "/work/caucasus/preview.mp4",
+      poster: "/work/caucasus/home-desktop.webp",
+      w: 1120,
+      h: 700,
+      alt: "Screen recording of the Caucasus Sweets Home English site scrolling from the hero through the menu and gallery sections.",
+    },
   },
 ];
 

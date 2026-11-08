@@ -1,6 +1,6 @@
 const { chromium } = require('D:/Projects/DAR/node_modules/playwright-core');
 const out='D:/Projects/Portfolio-Studio/shots/v/';
-const base='http://localhost:3300';
+const base='http://localhost:3600';
 const ok=(c,m)=>console.log(c?'PASS':'FAIL',m);
 (async()=>{
  const b=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});

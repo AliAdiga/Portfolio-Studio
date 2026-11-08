@@ -1,6 +1,7 @@
 "use client";
 import { useId, useRef, useState } from "react";
 import { projectTypes, site } from "@/content/site";
+import { Divider } from "./Divider";
 
 /**
  * Inquiry form. No backend is configured by default, so the honest behaviour is:
@@ -89,10 +90,11 @@ export function ContactSection() {
     ) : null;
 
   return (
-    <section id="contact" className="bg-sand py-24 md:py-32" aria-labelledby="contact-h">
-      <div className="wrap grid gap-14 lg:grid-cols-12">
+    <section id="contact" data-nav="contact" className="bg-sand" aria-labelledby="contact-h">
+      <Divider from="#3a2230" to="var(--c-sand)" />
+      <div className="wrap grid gap-14 py-20 md:py-28 lg:grid-cols-12">
         <div className="lg:col-span-5" data-reveal>
-          <h2 id="contact-h" className="display text-[clamp(2.4rem,5vw,4.4rem)]">
+          <h2 id="contact-h" data-mask className="display text-[clamp(2.4rem,5vw,4.4rem)]">
             Tell me about your <em>project</em>
           </h2>
           <p className="measure mt-6 text-[1.08rem] text-ink-soft">
@@ -186,7 +188,7 @@ export function ContactSection() {
             )}
             {state.kind === "sent" && <p className="font-semibold">Thank you. Your message was received.</p>}
             {state.kind === "failed" && (
-              <p className="error" style={{ color: "#8f2236" }}>
+              <p className="error">
                 Your message could not be sent. Please email{" "}
                 <a className="text-link font-semibold" href={`mailto:${site.email}`}>
                   {site.email}

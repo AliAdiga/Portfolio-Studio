@@ -1,11 +1,13 @@
+import Image from "next/image";
 import { services, processSteps as steps, site } from "@/content/site";
+import { Divider } from "./Divider";
 import { Reveal } from "./Reveal";
 
 export function WorkIntro() {
   return (
-    <section id="work" className="wrap pb-14 pt-24 md:pt-32" aria-labelledby="work-h">
+    <section id="work" data-nav="work" className="wrap pb-14 pt-24 md:pt-32" aria-labelledby="work-h">
       <Reveal>
-        <h2 id="work-h" className="display max-w-3xl text-[clamp(2.4rem,5vw,4.4rem)]">
+        <h2 id="work-h" data-mask className="display max-w-3xl text-[clamp(2.4rem,5vw,4.4rem)]">
           Selected <em>work</em>
         </h2>
         <p className="measure mt-5 text-[1.08rem] text-ink-soft">
@@ -19,11 +21,12 @@ export function WorkIntro() {
 
 export function Services() {
   return (
-    <section id="services" className="py-24 md:py-32" aria-labelledby="services-h">
-      <div className="wrap grid gap-14 lg:grid-cols-12">
+    <section id="services" className="relative z-20 bg-ivory" aria-labelledby="services-h">
+      <Divider from="#6e1f2c" to="var(--c-ivory)" />
+      <div className="wrap grid gap-14 py-20 md:py-28 lg:grid-cols-12">
         <Reveal className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
-            <h2 id="services-h" className="display text-[clamp(2.2rem,4.4vw,3.8rem)]">
+            <h2 id="services-h" data-mask className="display text-[clamp(2.2rem,4.4vw,3.8rem)]">
               What you <em>receive</em>
             </h2>
             <p className="mt-5 text-ink-soft">Three kinds of project I take on, described by what lands in your hands.</p>
@@ -31,19 +34,39 @@ export function Services() {
         </Reveal>
         <div className="lg:col-span-8">
           {services.map((s, i) => (
-            <Reveal key={s.title} delay={i * 60} className="grid gap-6 border-t border-line py-10 md:grid-cols-[1.2fr_1fr]">
+            <Reveal key={s.title} delay={i * 60} className="grid gap-8 border-t border-line py-10 md:grid-cols-[1.15fr_1fr]">
               <div>
                 <h3 className="display text-[1.9rem] leading-[1.1]">{s.title}</h3>
                 <p className="measure mt-4 text-ink-soft">{s.body}</p>
+                <ul className="mt-6 space-y-2.5 text-[0.98rem]">
+                  {s.receive.map((r) => (
+                    <li key={r} className="flex gap-3">
+                      <span aria-hidden="true" className="mt-[0.7em] h-px w-4 shrink-0 bg-plum" />
+                      {r}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-2.5 text-[0.98rem]">
-                {s.receive.map((r) => (
-                  <li key={r} className="flex gap-3">
-                    <span aria-hidden="true" className="mt-[0.7em] h-px w-4 shrink-0 bg-plum" />
-                    {r}
-                  </li>
-                ))}
-              </ul>
+              <figure>
+                <div className="browser tilt">
+                  <div className="aspect-[4/3] relative">
+                    <Image
+                      src={s.crop.src}
+                      alt={s.crop.alt}
+                      fill
+                      sizes="(min-width: 1024px) 26vw, 90vw"
+                      className="object-cover"
+                      style={{ objectPosition: s.crop.pos }}
+                    />
+                  </div>
+                </div>
+                <figcaption className="mt-3 text-[0.9rem] text-ink-soft">
+                  Example detail from{" "}
+                  <a href={`/work/${s.crop.slug}`} className="text-link font-semibold text-charcoal">
+                    {s.crop.project}
+                  </a>
+                </figcaption>
+              </figure>
             </Reveal>
           ))}
         </div>
@@ -54,10 +77,11 @@ export function Services() {
 
 export function About() {
   return (
-    <section id="about" className="bg-sand py-24 md:py-32" aria-labelledby="about-h">
-      <div className="wrap grid gap-14 lg:grid-cols-12">
+    <section id="about" data-nav="about" className="bg-sand" aria-labelledby="about-h">
+      <Divider from="var(--c-ivory)" to="var(--c-sand)" />
+      <div className="wrap grid gap-14 py-20 md:py-28 lg:grid-cols-12">
         <Reveal className="lg:col-span-6">
-          <h2 id="about-h" className="display text-[clamp(2.2rem,4.6vw,4rem)]">
+          <h2 id="about-h" data-mask className="display text-[clamp(2.2rem,4.6vw,4rem)]">
             Careful work, <em>explained</em> plainly.
           </h2>
           <div className="measure mt-8 space-y-5 text-[1.08rem]">
@@ -103,18 +127,19 @@ export function About() {
 
 export function Process() {
   return (
-    <section id="process" className="on-dark bg-plum-deep py-24 text-ivory md:py-32" aria-labelledby="process-h">
-      <div className="wrap">
+    <section id="process" className="on-dark bg-plum-deep text-paper" aria-labelledby="process-h">
+      <Divider from="var(--c-sand)" to="#3a2230" />
+      <div className="wrap py-20 md:py-28">
         <Reveal>
-          <h2 id="process-h" className="display max-w-2xl text-[clamp(2.2rem,4.6vw,4rem)]">
+          <h2 id="process-h" data-mask className="display max-w-2xl text-[clamp(2.2rem,4.6vw,4rem)]">
             How a project <em>unfolds</em>
           </h2>
         </Reveal>
         <ol className="mt-14 grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
           {steps.map((s, i) => (
-            <Reveal as="li" key={s.title} delay={i * 90} className="border-t border-ivory/35 pt-6">
+            <Reveal as="li" key={s.title} delay={i * 90} className="border-t border-paper/35 pt-6">
               <h3 className="display text-[1.65rem] leading-[1.15]">{s.title}</h3>
-              <p className="mt-4 text-[0.98rem] text-ivory/85">{s.body}</p>
+              <p className="mt-4 text-[0.98rem] text-paper/85">{s.body}</p>
             </Reveal>
           ))}
         </ol>

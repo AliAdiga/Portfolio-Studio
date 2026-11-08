@@ -1,9 +1,8 @@
-import Link from "next/link";
 import type { Project } from "@/content/projects";
 import { BrowserFrame, PhoneFrame } from "./Frames";
 import { Float } from "./Float";
 import { Reveal } from "./Reveal";
-import { VideoPreview } from "./VideoPreview";
+import { PhoneVideo, VideoPreview } from "./VideoPreview";
 
 function Swatches({ project }: { project: Project }) {
   return (
@@ -25,15 +24,11 @@ function Swatches({ project }: { project: Project }) {
 function Actions({ project, dark }: { project: Project; dark?: boolean }) {
   return (
     <div className="flex flex-wrap gap-3">
-      <Link href={`/work/${project.slug}`} className={`btn ${dark ? "btn-light" : "btn-primary"}`}>
+      {/* Plain anchor on purpose: a full navigation lets the browser morph the preview into the case-study hero. */}
+      <a href={`/work/${project.slug}`} className={`btn ${dark ? "btn-light" : "btn-primary"}`}>
         View case study <span className="arrow" aria-hidden="true">&rarr;</span>
-      </Link>
-      <a
-        href={project.liveUrl}
-        className="btn btn-ghost"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      </a>
+      <a href={project.liveUrl} className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
         Visit website<span className="sr-only"> (opens in a new tab)</span>
       </a>
     </div>
@@ -41,17 +36,20 @@ function Actions({ project, dark }: { project: Project; dark?: boolean }) {
 }
 
 function Copy({ project, dark }: { project: Project; dark?: boolean }) {
+  const soft = dark ? "text-paper/85" : "text-ink-soft";
   return (
     <div className="flex flex-col gap-7">
       <div>
-        <p className={`text-[1rem] font-semibold ${dark ? "text-ivory/85" : "text-plum"}`}>{project.category}</p>
-        <h3 className="display mt-2 text-[clamp(2.6rem,5.4vw,4.8rem)]">{project.name}</h3>
+        <p className={`text-[1rem] font-semibold ${dark ? "text-paper/85" : "text-plum"}`}>{project.category}</p>
+        <h3 data-mask className="display mt-2 text-[clamp(2.6rem,5.4vw,4.8rem)]">
+          {project.name}
+        </h3>
       </div>
-      <p className={`measure text-[1.08rem] ${dark ? "text-ivory/85" : "text-ink-soft"}`}>{project.summary}</p>
+      <p className={`measure text-[1.08rem] ${soft}`}>{project.summary}</p>
       <p>
         <span
           className={`inline-block rounded-full border px-3.5 py-1 text-[0.88rem] font-semibold ${
-            dark ? "border-ivory/50" : "border-charcoal/40"
+            dark ? "border-paper/50" : "border-charcoal/40"
           }`}
         >
           {project.status.label}
@@ -60,13 +58,11 @@ function Copy({ project, dark }: { project: Project; dark?: boolean }) {
       <dl className="grid gap-5 sm:grid-cols-2">
         <div>
           <dt className="text-[0.92rem] font-semibold">My role</dt>
-          <dd className={`mt-1.5 text-[0.98rem] ${dark ? "text-ivory/85" : "text-ink-soft"}`}>
-            {project.role.join(". ")}.
-          </dd>
+          <dd className={`mt-1.5 text-[0.98rem] ${soft}`}>{project.role.join(". ")}.</dd>
         </div>
         <div>
           <dt className="text-[0.92rem] font-semibold">{project.detail.title}</dt>
-          <dd className={`mt-1.5 text-[0.98rem] ${dark ? "text-ivory/85" : "text-ink-soft"}`}>{project.detail.body}</dd>
+          <dd className={`mt-1.5 text-[0.98rem] ${soft}`}>{project.detail.body}</dd>
         </div>
       </dl>
       <Swatches project={project} />
@@ -75,24 +71,28 @@ function Copy({ project, dark }: { project: Project; dark?: boolean }) {
   );
 }
 
+/** The main preview: a recording if one exists, otherwise a screenshot. Shares a transition name with the case-study hero. */
+function MainPreview({ p }: { p: Project }) {
+  const vt = `case-${p.slug}`;
+  const href = `/work/${p.slug}`;
+  if (p.video && p.video.kind !== "phone") return <VideoPreview video={p.video} url={p.liveUrl} href={href} vtName={vt} />;
+  return <BrowserFrame shot={p.desktop[0]} url={p.liveUrl} href={href} vtName={vt} />;
+}
+
 /* DAR: split, text left, wide video stage right, phone overlapping. Sand ground. */
 function Dar({ p }: { p: Project }) {
   return (
-    <section id={p.slug} className="bg-sand overflow-x-clip py-24 md:py-32" aria-labelledby={`${p.slug}-h`}>
+    <section id={p.slug} className="overflow-x-clip bg-sand py-24 md:py-32" aria-labelledby={`${p.slug}-h`}>
       <div className="wrap grid items-center gap-14 lg:grid-cols-12">
         <Reveal className="lg:col-span-5">
           <div id={`${p.slug}-h`}>
             <Copy project={p} />
           </div>
         </Reveal>
-        <div className="relative lg:col-span-7">
-          <Reveal delay={120}>
+        <div className="tilt relative lg:col-span-7">
+          <Reveal delay={120} wipe>
             <Float distance={14}>
-              {p.video ? (
-                <VideoPreview video={p.video} url={p.liveUrl} />
-              ) : (
-                <BrowserFrame shot={p.desktop[0]} url={p.liveUrl} />
-              )}
+              <MainPreview p={p} />
             </Float>
           </Reveal>
           <Reveal delay={260} className="absolute -bottom-10 -left-4 hidden w-[22%] sm:block lg:-left-6">
@@ -109,12 +109,16 @@ function Dar({ p }: { p: Project }) {
 /* Aurelle: dark, media left (browser + overlapping phone), text right. */
 function Aurelle({ p }: { p: Project }) {
   return (
-    <section id={p.slug} className="on-dark bg-[#1b1016] overflow-x-clip py-24 text-ivory md:py-32" aria-labelledby={`${p.slug}-h`}>
+    <section
+      id={p.slug}
+      className="on-dark overflow-x-clip bg-[var(--aur-bg)] py-24 text-paper md:py-32"
+      aria-labelledby={`${p.slug}-h`}
+    >
       <div className="wrap grid items-center gap-14 lg:grid-cols-12">
-        <div className="relative order-2 lg:order-1 lg:col-span-7">
-          <Reveal>
+        <div className="tilt relative order-2 lg:order-1 lg:col-span-7">
+          <Reveal wipe>
             <Float distance={14}>
-              <BrowserFrame shot={p.desktop[0]} url={p.liveUrl} />
+              <MainPreview p={p} />
             </Float>
           </Reveal>
           <Reveal delay={200} className="absolute -bottom-12 right-[-2%] w-[26%] sm:w-[22%] lg:-right-12">
@@ -141,25 +145,31 @@ function Aurelle({ p }: { p: Project }) {
 /* Zaytoun: stacked. Title and summary, then a full-width device row, then three text columns. */
 function Zaytoun({ p }: { p: Project }) {
   return (
-    <section id={p.slug} className="bg-[#e3e2d1] overflow-x-clip py-24 md:py-32" aria-labelledby={`${p.slug}-h`}>
+    <section id={p.slug} className="overflow-x-clip bg-[var(--zay-bg)] py-24 md:py-32" aria-labelledby={`${p.slug}-h`}>
       <div className="wrap">
         <Reveal>
           <div id={`${p.slug}-h`} className="max-w-3xl">
             <p className="text-[1rem] font-semibold text-olive">{p.category}</p>
-            <h3 className="display mt-2 text-[clamp(2.6rem,6.2vw,5.6rem)]">{p.name}</h3>
+            <h3 data-mask className="display mt-2 text-[clamp(2.6rem,6.2vw,5.6rem)]">
+              {p.name}
+            </h3>
             <p className="measure mt-6 text-[1.08rem] text-ink-soft">{p.summary}</p>
           </div>
         </Reveal>
 
-        <div className="mt-14 grid items-end gap-6 md:grid-cols-12">
-          <Reveal className="md:col-span-8">
+        <div className="tilt mt-14 grid items-end gap-6 md:grid-cols-12">
+          <Reveal className="md:col-span-8" wipe>
             <Float distance={12}>
-              <BrowserFrame shot={p.desktop[0]} url={p.liveUrl} sizes="(min-width: 1024px) 60vw, 100vw" />
+              <MainPreview p={p} />
             </Float>
           </Reveal>
           <Reveal delay={150} className="md:col-span-2">
             <Float distance={-30}>
-              <PhoneFrame shot={p.mobile[1]} sizes="(min-width: 1024px) 17vw, 40vw" />
+              {p.video?.kind === "phone" ? (
+                <PhoneVideo video={p.video} />
+              ) : (
+                <PhoneFrame shot={p.mobile[1]} sizes="(min-width: 1024px) 17vw, 40vw" />
+              )}
             </Float>
           </Reveal>
           <Reveal delay={280} className="md:col-span-2">
@@ -195,20 +205,24 @@ function Zaytoun({ p }: { p: Project }) {
   );
 }
 
-/* Caucasus Sweets: burgundy ground, text left, desktop plus two phones on the right. */
+/* Caucasus Sweets: burgundy ground, text left, desktop plus a phone on the right. */
 function Caucasus({ p }: { p: Project }) {
   return (
-    <section id={p.slug} className="on-dark bg-[#6e1f2c] overflow-x-clip py-24 text-ivory md:py-32" aria-labelledby={`${p.slug}-h`}>
+    <section
+      id={p.slug}
+      className="on-dark overflow-x-clip bg-[#6e1f2c] py-24 text-paper md:py-32"
+      aria-labelledby={`${p.slug}-h`}
+    >
       <div className="wrap grid items-center gap-14 lg:grid-cols-12">
         <Reveal className="lg:col-span-5">
           <div id={`${p.slug}-h`}>
             <Copy project={p} dark />
           </div>
         </Reveal>
-        <div className="relative lg:col-span-7">
-          <Reveal delay={100}>
+        <div className="tilt relative lg:col-span-7">
+          <Reveal delay={100} wipe>
             <Float distance={14}>
-              <BrowserFrame shot={p.desktop[0]} url={p.liveUrl} />
+              <MainPreview p={p} />
             </Float>
           </Reveal>
           <Reveal delay={260} className="absolute -bottom-12 right-[-2%] w-[26%] sm:w-[22%] lg:-right-8">

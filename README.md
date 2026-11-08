@@ -33,6 +33,10 @@ No secrets are used or committed.
 
 Every project statement was checked against the project's own source or docs on the author's machine (D:\Projects\DAR, 3D-Website-Perfume, zaytoun-app, caucasus_sweets_home) and the Vercel project settings. Screenshots are real captures of those projects run locally, except the Zaytoun website desktop image, which is an earlier capture of the live deployment. Contact details and social links were taken from Ali's earlier portfolio project and need confirming.
 
+## Design and motion features
+
+Paper grain and soft light wash, wave dividers between sections, stacked project sheets (native `position: sticky`), CSS scroll-driven hero drift and progress rule, masked headline and wiped image reveals, cursor "View" label, hover tilt, one pausable marquee, shared-element case-study transitions (cross-document View Transitions, so project links are plain anchors), real screen recordings with Play/Pause, and a light/dark theme toggle (light by default, remembered on the device).
+
 ## Motion and accessibility
 
 Entrance and scroll reveals use IntersectionObserver and CSS, content is visible if JavaScript fails, and everything collapses under `prefers-reduced-motion` (including the DAR preview video, which then does not autoplay). Native scrolling is never intercepted. Case-study navigation uses the CSS View Transitions API where supported.

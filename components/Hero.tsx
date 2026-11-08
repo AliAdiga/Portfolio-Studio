@@ -4,8 +4,12 @@ import { HeroStage } from "./HeroStage";
 export function Hero() {
   return (
     <section className="relative overflow-x-clip" aria-labelledby="hero-h">
-      <div className="wrap grid items-center gap-10 py-10 lg:min-h-[calc(100dvh-var(--nav-h))] lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-6">
+      <div className="hero-wash" aria-hidden="true" />
+      <span className="hero-amp" aria-hidden="true">
+        &amp;
+      </span>
+      <div className="wrap relative grid items-center gap-10 py-8 lg:min-h-[min(calc(100dvh-var(--nav-h)),760px)] lg:grid-cols-12 lg:gap-8">
+        <div className="hero-text lg:col-span-6">
           <h1
             id="hero-h"
             className="display text-[clamp(2.7rem,4.3vw,4.4rem)]"
@@ -33,8 +37,10 @@ export function Hero() {
             </Link>
           </div>
         </div>
-        <div className="rise lg:-mr-10 lg:col-span-6" style={{ "--d": "300ms" } as React.CSSProperties}>
-          <HeroStage />
+        <div className="hero-stage lg:-mr-10 lg:col-span-6">
+          <div className="rise" style={{ "--d": "300ms" } as React.CSSProperties}>
+            <HeroStage />
+          </div>
         </div>
       </div>
     </section>
