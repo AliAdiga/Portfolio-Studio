@@ -1,0 +1,388 @@
+@import "tailwindcss";
+
+/*
+  The Living Gallery design system.
+  Palette adjusted for contrast (ratios against the stated background):
+    charcoal #24211F on ivory #F4EFE7  ~ 14.0:1
+    plum     #674350 on ivory          ~  7.4:1
+    olive    #6A6042 on ivory          ~  5.5:1  (darkened from the suggested #756A4A for text use)
+  Shape rule: buttons and tags are pills, media frames and panels use 14px,
+  form fields use 10px.
+*/
+@theme inline {
+  --color-ivory: #f4efe7;
+  --color-sand: #ebe3d6;
+  --color-charcoal: #24211f;
+  --color-ink-soft: #57514b;
+  --color-plum: #674350;
+  --color-plum-deep: #3a2230;
+  --color-olive: #6a6042;
+  --color-line: rgb(36 33 31 / 0.16);
+
+  --font-serif: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-hanken), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-frame: 14px;
+  --radius-field: 10px;
+}
+
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --nav-h: 68px;
+  color-scheme: light;
+}
+
+@layer components {
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 12px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-ivory);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-plum);
+  color: var(--color-ivory);
+}
+
+/* ---------- Focus ---------- */
+:focus-visible {
+  outline: 3px solid var(--color-plum);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.on-dark :focus-visible {
+  outline-color: #f1c9d5;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: var(--color-charcoal);
+  color: var(--color-ivory);
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* ---------- Type ---------- */
+.display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  font-optical-sizing: auto;
+}
+.display em {
+  font-style: italic;
+  color: var(--color-plum);
+  /* room for italic descenders */
+  padding-bottom: 0.06em;
+}
+.on-dark .display em {
+  color: #e9bccb;
+}
+.kicker {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.lede {
+  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+  line-height: 1.55;
+  max-width: 38ch;
+  color: var(--color-ink-soft);
+}
+.measure {
+  max-width: 62ch;
+}
+
+/* ---------- Layout ---------- */
+.wrap {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+}
+
+/* ---------- Buttons (pill system) ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.7rem 1.55rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.98rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  border: 1.5px solid transparent;
+  transition:
+    transform 0.35s var(--ease-out),
+    background-color 0.25s,
+    color 0.25s,
+    border-color 0.25s;
+  cursor: pointer;
+}
+.btn:active {
+  transform: translateY(1px) scale(0.985);
+}
+.btn-primary {
+  background: var(--color-charcoal);
+  color: var(--color-ivory);
+}
+.btn-primary:hover {
+  background: var(--color-plum);
+}
+.btn-plum {
+  background: var(--color-plum);
+  color: #fff;
+}
+.btn-plum:hover {
+  background: var(--color-plum-deep);
+}
+.btn-ghost {
+  border-color: var(--color-charcoal);
+  color: var(--color-charcoal);
+}
+.btn-ghost:hover {
+  background: var(--color-charcoal);
+  color: var(--color-ivory);
+}
+.on-dark .btn-ghost {
+  border-color: rgb(244 239 231 / 0.7);
+  color: var(--color-ivory);
+}
+.on-dark .btn-ghost:hover {
+  background: var(--color-ivory);
+  color: var(--color-charcoal);
+}
+.btn-light {
+  background: var(--color-ivory);
+  color: var(--color-charcoal);
+}
+.btn-light:hover {
+  background: #fff;
+}
+.btn .arrow {
+  transition: transform 0.35s var(--ease-out);
+}
+.btn:hover .arrow {
+  transform: translateX(4px);
+}
+
+.text-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% 1.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 2px;
+  transition: background-size 0.4s var(--ease-out), color 0.2s;
+}
+.text-link:hover {
+  background-size: 0% 1.5px;
+  background-position: 100% 100%;
+}
+
+/* ---------- Device frames ---------- */
+.browser {
+  border-radius: var(--radius-frame);
+  background: #1c1a19;
+  overflow: hidden;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.08) inset,
+    0 30px 60px -28px rgb(58 34 48 / 0.55),
+    0 12px 24px -16px rgb(36 33 31 / 0.4);
+}
+.browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2rem;
+  padding: 0 0.8rem;
+  background: #2a2725;
+}
+.browser-bar i {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #5b5551;
+}
+.browser-bar span {
+  margin-left: 0.6rem;
+  flex: 1;
+  max-width: 17rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  background: #1c1a19;
+  color: #b8b0a8;
+  font-size: 0.68rem;
+  line-height: 1.15rem;
+  padding: 0 0.7rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.phone {
+  border-radius: 2.1rem;
+  padding: 0.5rem;
+  background: #1c1a19;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.1) inset,
+    0 30px 50px -24px rgb(36 33 31 / 0.55);
+}
+.phone img {
+  border-radius: 1.65rem;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- Scroll reveal (works without JS) ---------- */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.9s var(--ease-out),
+    transform 0.9s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Hero entrance (CSS only, plays with or without JS) ---------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.9s var(--ease-out) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* ---------- Case study page transition ---------- */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.page-in {
+  animation: page-in 0.7s var(--ease-out) both;
+}
+@supports (view-transition-name: none) {
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.35s;
+  }
+}
+
+/* ---------- Form ---------- */
+.field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.45rem;
+}
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  background: #fffdf9;
+  color: var(--color-charcoal);
+  border: 1.5px solid #8a8178;
+  border-radius: var(--radius-field);
+  padding: 0.85rem 1rem;
+  font: inherit;
+  min-height: 3rem;
+}
+.field textarea {
+  min-height: 8.5rem;
+  resize: vertical;
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #6b645d;
+}
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: 3px solid var(--color-plum);
+  outline-offset: 1px;
+  border-color: var(--color-plum);
+}
+.field [aria-invalid="true"] {
+  border-color: #9b2c3f;
+}
+.field .error {
+  color: #8f2236;
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .rise,
+  .page-in {
+    animation: none;
+  }
+  .btn,
+  .btn .arrow,
+  .text-link {
+    transition: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+.amp {
+  color: var(--color-plum);
+}
+.on-dark .amp {
+  color: #e9bccb;
+}
+
+}
