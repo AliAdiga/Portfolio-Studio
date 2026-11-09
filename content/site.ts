@@ -13,6 +13,8 @@ export const site = {
   email: "alitsai55@gmail.com",
   instagram: "https://www.instagram.com/scrollandserif",
   linkedin: "https://www.linkedin.com/in/ali-tsai/",
+  // Profile of the GitHub account that owns this portfolio's repository (AliAdiga/Portfolio-Studio).
+  github: "https://github.com/AliAdiga",
   location: "Amman, Jordan",
 } as const;
 
@@ -86,4 +88,19 @@ export const projectTypes = [
   "Interactive web experience",
   "Website redesign",
   "Something else",
+] as const;
+
+/** Verified destinations only. A link that cannot be verified is omitted, never replaced with a placeholder. */
+export const socials = [
+  { id: "email", label: "Email", href: `mailto:${site.email}`, external: false },
+  { id: "linkedin", label: "LinkedIn", href: site.linkedin, external: true },
+  { id: "instagram", label: "Instagram", href: site.instagram, external: true },
+  { id: "github", label: "GitHub", href: site.github, external: true },
+] as const;
+
+/** The Services menu: each entry links to an existing row in the Services section (stable ids). */
+export const serviceMenu = [
+  { id: "services-websites", title: "Websites", line: "Business and brand sites in English, Arabic or both.", art: "editorial" },
+  { id: "services-interactive", title: "Interactive experiences", line: "Pages that show rather than tell.", art: "plan" },
+  { id: "services-redesigns", title: "Redesigns", line: "Keep what works, rebuild the rest.", art: "beforeafter" },
 ] as const;

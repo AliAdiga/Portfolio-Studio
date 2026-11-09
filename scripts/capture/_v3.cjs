@@ -1,5 +1,5 @@
 const { chromium } = require("D:/Projects/DAR/node_modules/playwright-core");
-const B = "http://localhost:3800";
+const B = "http://localhost:3840";
 const ok = (c, m) => console.log(c ? "PASS" : "FAIL", m);
 const exe = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const slugs = ["dar", "aurelle", "zaytoun", "caucasus"];
@@ -25,14 +25,14 @@ const hiddenInView = () =>
     ok(states.some((s) => s === "0"), "reveal: only below-the-fold content waits (" + states.filter((s) => s === "0").length + " below the fold)");
 
     // anchor navigation shows the destination at once
-    for (const [name, sel] of [["About", "#about"], ["Contact", "#contact"], ["Work", "#work"]]) {
+    for (const [name, sel] of [[/^About$/, "#about"], [/Let.s talk/, "#contact"], [/Explore the work/, "#work"]]) {
       await p.evaluate(() => scrollTo(0, 0));
       await p.waitForTimeout(150);
-      await p.getByRole("link", { name, exact: true }).first().click();
+      await p.getByRole("link", { name }).first().click();
       await p.waitForTimeout(90);
       const hid = await p.evaluate(hiddenInView);
       const top = await p.evaluate((s) => Math.round(document.querySelector(s).getBoundingClientRect().top), sel);
-      ok(hid === 0, "anchor " + name + ": destination content visible within 90ms (hidden in view: " + hid + ", section top " + top + ")");
+      ok(hid === 0, "anchor " + String(name) + ": destination content visible within 90ms (hidden in view: " + hid + ", section top " + top + ")");
     }
     // big jumps
     for (const y of [3000, 6500, 9000]) {
@@ -168,17 +168,17 @@ const hiddenInView = () =>
     ok((await p.evaluate(() => document.activeElement.textContent.includes("Watch demo"))), "Watch demo: focus returns to the button");
     // index offsets
     await p.evaluate(() => scrollTo(0, 0));
-    await p.getByRole("link", { name: "Work", exact: true }).first().click();
+    await p.evaluate(() => document.querySelector("#work").scrollIntoView());
     await p.waitForTimeout(300);
     await p.locator(".work-index a", { hasText: "Zaytoun" }).click();
     await p.waitForTimeout(300);
     const off = await p.evaluate(() => ({ idx: document.querySelector(".work-index").getBoundingClientRect(), sec: document.querySelector("#zaytoun").getBoundingClientRect(), head: document.querySelector("header").getBoundingClientRect().bottom }));
-    ok(Math.abs(off.idx.top - 68) < 2 && off.sec.top >= off.idx.bottom - 1 && off.sec.top < off.idx.bottom + 30, "index link: section lands directly under header + index (index " + Math.round(off.idx.top) + "-" + Math.round(off.idx.bottom) + ", section top " + Math.round(off.sec.top) + ")");
+    ok(Math.abs(off.idx.top - 76) < 2 && off.sec.top >= off.idx.bottom - 1 && off.sec.top < off.idx.bottom + 30, "index link: section lands directly under header + index (index " + Math.round(off.idx.top) + "-" + Math.round(off.idx.bottom) + ", section top " + Math.round(off.sec.top) + ")");
     await p.evaluate(() => document.querySelector("#about").scrollIntoView());
     await p.waitForTimeout(400);
     ok((await p.evaluate(() => document.querySelector(".work-index").getBoundingClientRect().bottom)) < 68 || (await p.evaluate(() => document.querySelector(".work-index").getBoundingClientRect().top)) < 0, "index: stays inside the work section (gone by About)");
     const aboutTop = await p.evaluate(() => document.querySelector("#about h2").getBoundingClientRect().top);
-    ok(aboutTop >= 68, "About heading is not covered by the header (" + Math.round(aboutTop) + ")");
+    ok(aboutTop >= 76, "About heading is not covered by the header (" + Math.round(aboutTop) + ")");
     await ctx.close();
   }
 
@@ -214,7 +214,7 @@ const hiddenInView = () =>
     const p = await ctx.newPage();
     await p.goto(B + "/", { waitUntil: "load" });
     await p.waitForTimeout(500);
-    const prim = p.getByRole("link", { name: /Explore my work/ });
+    const prim = p.getByRole("link", { name: /Explore the work/ });
     const h = (await prim.boundingBox()).height;
     ok(h >= 48 && h <= 52, "primary button height " + Math.round(h) + "px");
     const t0 = await prim.evaluate((e) => getComputedStyle(e).transform);

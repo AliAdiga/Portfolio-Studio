@@ -46,7 +46,9 @@ export const viewport: Viewport = {
 // then applies the saved theme, or the system preference when there is no saved choice.
 const initScript =
   "(function(){var d=document.documentElement;d.classList.add('js');var t=null;try{t=localStorage.getItem('theme')}catch(e){}" +
-  "if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}d.dataset.theme=t})()";
+  "if(t!=='dark'&&t!=='light'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}d.dataset.theme=t;" +
+  // Hero opening: only on the home page, on a first visit in this browser session, and never with reduced motion.
+  "try{if(location.pathname==='/'&&!sessionStorage.getItem('ss-hero')&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)d.setAttribute('data-hero-intro','')}catch(e){}})()";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -54,7 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: initScript }} />
       </head>
-      <body>
+      <body id="top">
         <a className="skip-link" href="#main">
           Skip to content
         </a>

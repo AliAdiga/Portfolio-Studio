@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { projects } from "@/content/projects";
@@ -9,11 +10,14 @@ const num = (i: number) => String(i + 1).padStart(2, "0");
 const FADE_MS = 400;
 
 /**
- * The hero's cinematic cover, chosen deliberately with a numbered selector (nothing cycles by itself).
+ * Typographic opening. "Scroll" and "& Serif" frame a central project cover. On first entry a narrow window in the
+ * middle opens onto the full 3:2 photograph while the two words slide outward (see the hero-open keyframes and the
+ * intro script). The photograph is always laid out at its final size and only revealed with a clip-path, so it is
+ * never stretched or squashed. Without the intro (return visits, reduced motion, small screens use a simpler version,
+ * or if scripting fails) the final composition is simply shown.
  *
- * All four covers sit in one fixed 3:2 container, so nothing shifts. Choosing a project first waits for the
- * incoming image to be decoded; the outgoing image stays fully visible until then, and the incoming one fades
- * in over it. Quick successive choices are safe: only the latest request wins.
+ * Choosing a project crossfades the cover in the same fixed container: the incoming image is decoded first, the
+ * outgoing one stays fully visible until then, and the opening never replays. Nothing cycles by itself.
  */
 export function HeroStage() {
   const reduce = !!useReducedMotion();
@@ -30,7 +34,6 @@ export function HeroStage() {
   useEffect(() => {
     root.current?.closest<HTMLElement>(".hero")?.style.setProperty("--hero-accent", extras[p.slug].accent);
   }, [p.slug]);
-
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   async function choose(i: number) {
@@ -55,78 +58,108 @@ export function HeroStage() {
   }
 
   return (
-    <div ref={root} className="w-full">
-      <div className="cover" style={{ aspectRatio: "3 / 2" }} role="group" aria-label="Featured project cover">
-        {projects.map((proj, i) => {
-          const c = extras[proj.slug].cover;
-          const state = i === active ? "on" : i === prev ? "prev" : "off";
-          return (
-            <Image
-              key={proj.slug}
-              ref={(el) => {
-                imgs.current[i] = el;
-              }}
-              src={c.src}
-              alt={i === active ? c.alt : ""}
-              aria-hidden={i === active ? undefined : true}
-              width={c.w}
-              height={c.h}
-              sizes="(min-width: 1024px) 58vw, 100vw"
-              fetchPriority={i === 0 ? "high" : "low"}
-              loading="eager"
-              data-state={state}
-              className="cover-layer"
-            />
-          );
-        })}
-        <a href={`/work/${p.slug}`} tabIndex={-1} aria-hidden="true" className="absolute inset-0 z-10" />
-      </div>
-
-      <div className="mt-5 flex min-h-[4.6rem] flex-wrap items-start justify-between gap-x-6 gap-y-3">
-        <div aria-live="polite" aria-busy={pending !== null} className="min-w-0">
-          <div key={p.slug} className="fade-text">
-            <p className="display text-[1.7rem] leading-tight">{p.name}</p>
-            <p className="text-[0.95rem] text-ink-soft">
-              {p.category} <span className="badge ml-1 align-middle">{p.status.label}</span>
-            </p>
+    <div ref={root}>
+      <div className="hero-stage">
+        <p className="hero-word hero-word-l" aria-hidden="true">
+          Scroll
+        </p>
+        <div className="hero-mask">
+          <div className="cover" style={{ aspectRatio: "3 / 2" }} role="group" aria-label="Featured project cover">
+            {projects.map((proj, i) => {
+              const c = extras[proj.slug].cover;
+              const state = i === active ? "on" : i === prev ? "prev" : "off";
+              return (
+                <Image
+                  key={proj.slug}
+                  id={i === 0 ? "hero-first" : undefined}
+                  ref={(el) => {
+                    imgs.current[i] = el;
+                  }}
+                  src={c.src}
+                  alt={i === active ? c.alt : ""}
+                  aria-hidden={i === active ? undefined : true}
+                  width={c.w}
+                  height={c.h}
+                  sizes="(min-width: 1024px) 48vw, 100vw"
+                  fetchPriority={i === 0 ? "high" : "low"}
+                  loading="eager"
+                  data-state={state}
+                  className="cover-layer"
+                />
+              );
+            })}
+            <a href={`/work/${p.slug}`} tabIndex={-1} aria-hidden="true" className="absolute inset-0 z-10" />
           </div>
         </div>
-        <a href={`/work/${p.slug}`} className="cs-link">
-          <span className="label">View case study</span>
-          <span className="ring" aria-hidden="true">&rarr;</span>
-        </a>
+        <p className="hero-word hero-word-r" aria-hidden="true">
+          <span className="amp italic">&amp;</span> Serif
+        </p>
       </div>
 
-      <LayoutGroup id="hero-selector">
-        <ol className="mt-3 flex flex-wrap gap-x-1 border-t border-line" aria-label="Choose a project">
-          {projects.map((proj, i) => {
-            const selected = (pending ?? active) === i;
-            return (
-              <li key={proj.slug} className="relative">
-                <button
-                  type="button"
-                  onClick={() => choose(i)}
-                  aria-pressed={active === i}
-                  className={`flex min-h-11 items-baseline gap-2 px-3 pt-2 text-[0.95rem] font-semibold transition-colors duration-[180ms] ${
-                    selected ? "text-charcoal" : "text-ink-soft hover:text-charcoal"
-                  }`}
-                >
-                  <span className="num">{num(i)}</span>
-                  {proj.name.split(" ")[0]}
-                </button>
-                {selected && (
-                  <motion.span
-                    layoutId="hero-tab"
-                    aria-hidden="true"
-                    className="absolute inset-x-3 -top-px h-[2px] bg-[var(--c-marker)]"
-                    transition={{ duration: reduce ? 0 : 0.35, ease: [0.2, 0.7, 0.2, 1] }}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ol>
-      </LayoutGroup>
+      <div className="wrap hero-copy grid items-start gap-8 pb-10 pt-8 lg:grid-cols-12 lg:gap-10">
+        <div className="lg:col-span-7">
+          <h1 id="hero-h" className="display text-[clamp(2.2rem,4vw,3.6rem)]">
+            Distinctive websites. <em>Thoughtfully</em> built.
+          </h1>
+          <p className="lede mt-4">Independent design and development by Ali Tsai, based in Amman.</p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="#work" className="btn btn-primary">
+              Explore the work <span className="arrow" aria-hidden="true">&darr;</span>
+            </Link>
+            <Link href="#contact" className="btn btn-secondary">
+              Discuss a project
+            </Link>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5">
+          <div className="flex min-h-[4.2rem] flex-wrap items-start justify-between gap-x-6 gap-y-2">
+            <div aria-live="polite" aria-busy={pending !== null} className="min-w-0">
+              <div key={p.slug} className="fade-text">
+                <p className="display text-[1.5rem] leading-tight">{p.name}</p>
+                <p className="text-[0.95rem] text-ink-soft">
+                  {p.category} <span className="badge ml-1 align-middle">{p.status.label}</span>
+                </p>
+              </div>
+            </div>
+            <a href={`/work/${p.slug}`} className="cs-link">
+              <span className="label">View case study</span>
+              <span className="ring" aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+
+          <LayoutGroup id="hero-selector">
+            <ol className="mt-2 flex flex-wrap gap-x-1 border-t border-line" aria-label="Choose a project">
+              {projects.map((proj, i) => {
+                const selected = (pending ?? active) === i;
+                return (
+                  <li key={proj.slug} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => choose(i)}
+                      aria-pressed={active === i}
+                      className={`flex min-h-11 items-baseline gap-2 px-3 pt-2 text-[0.95rem] font-semibold transition-colors duration-[180ms] ${
+                        selected ? "text-charcoal" : "text-ink-soft hover:text-charcoal"
+                      }`}
+                    >
+                      <span className="num">{num(i)}</span>
+                      {proj.name.split(" ")[0]}
+                    </button>
+                    {selected && (
+                      <motion.span
+                        layoutId="hero-tab"
+                        aria-hidden="true"
+                        className="absolute inset-x-3 -top-px h-[2px] bg-[var(--c-marker)]"
+                        transition={{ duration: reduce ? 0 : 0.35, ease: [0.2, 0.7, 0.2, 1] }}
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </LayoutGroup>
+        </div>
+      </div>
     </div>
   );
 }

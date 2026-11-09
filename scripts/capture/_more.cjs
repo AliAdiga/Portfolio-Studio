@@ -1,5 +1,5 @@
 const { chromium } = require("D:/Projects/DAR/node_modules/playwright-core");
-const B = "http://localhost:3800";
+const B = "http://localhost:3840";
 const ok = (c, m) => console.log(c ? "PASS" : "FAIL", m);
 const exe = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const names = ["Vestra", "Cedar Stone Legal", "Evercare Hospital"];
@@ -18,7 +18,7 @@ const hiddenInView = () =>
     const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
     const p = await ctx.newPage();
     const reqs = [];
-    p.on("request", (r) => { if (/more%2F|work\/more/.test(decodeURIComponent(r.url())) && !r.url().includes("localhost:3800/work/more/")) reqs.push(decodeURIComponent(r.url())); });
+    p.on("request", (r) => { if (/more%2F|work\/more/.test(decodeURIComponent(r.url())) && !r.url().includes("localhost:3840/work/more/")) reqs.push(decodeURIComponent(r.url())); });
     await p.goto(B + "/", { waitUntil: "load" });
     await p.waitForTimeout(1500);
     ok(reqs.length === 0, "lazy: no More-websites captures downloaded on first load (" + reqs.length + ")");
@@ -39,7 +39,7 @@ const hiddenInView = () =>
     ok(n2.every((x) => Math.abs(x.nat - x.box) < 0.02), "images are not stretched (natural vs displayed ratio " + n2.map((x) => x.nat + "/" + x.box).join(", ") + ")");
     ok(reqs.length === 3, "lazy: the three captures load only when the section nears the screen (" + reqs.length + ")");
     ok((await p.evaluate(hiddenInView)) === 0, "reveal: section visible, never blank, after scrolling to it");
-    ok((await p.evaluate(() => document.querySelectorAll('header .nav-item[aria-current="true"]').length)) === 0, "nav: no wrong section is marked active inside More websites");
+    ok((await p.evaluate(() => [...document.querySelectorAll('header .nav-item[aria-current="true"]')].map((e) => e.textContent.trim()).join())) === "Work", "nav: More websites counts as Work, so only Work is marked active");
     await p.screenshot({ path: "D:/Projects/Portfolio-Studio/docs/screenshots/more-desktop-light.png" });
     await ctx.close();
   }

@@ -1,43 +1,30 @@
-import Link from "next/link";
 import { HeroStage } from "./HeroStage";
+
+/**
+ * Hero intro gate. The <head> script (layout.tsx) sets html[data-hero-intro] only for a first, motion-friendly
+ * visit to the home page; the CSS then holds the opening in its starting pose with a 3-second failsafe delay.
+ * This script runs right after the markup: once the DAR cover is decoded it shortens that delay so the reveal
+ * starts (about a second long), removes the flag when the animation ends, and records that it has played for
+ * this browser session. If anything here fails, the opening simply completes by itself after the failsafe.
+ */
+const intro = `(function(){try{
+var d=document.documentElement;if(!d.hasAttribute('data-hero-intro'))return;
+var img=document.getElementById('hero-first'),started=false;
+function go(){if(started)return;started=true;try{sessionStorage.setItem('ss-hero','1')}catch(e){}d.style.setProperty('--hero-delay','80ms')}
+function done(){d.removeAttribute('data-hero-intro');d.style.removeProperty('--hero-delay')}
+document.addEventListener('animationend',function(e){if(e.animationName==='hero-open'||e.animationName==='hero-open-m')done()});
+if(img&&!(img.complete&&img.naturalWidth>0)&&img.decode){img.decode().then(go,go)}else{go()}
+setTimeout(go,1800);setTimeout(done,6000);
+}catch(e){}})();`;
 
 export function Hero() {
   return (
     <section className="hero relative overflow-x-clip" aria-labelledby="hero-h">
       <div className="hero-wash" aria-hidden="true" />
-      <span className="hero-amp" aria-hidden="true">
-        &amp;
-      </span>
-      <div className="wrap relative grid items-center gap-10 py-8 lg:min-h-[min(calc(100dvh-var(--nav-h)),780px)] lg:grid-cols-12 lg:gap-10">
-        <div className="lg:col-span-5">
-          <h1 id="hero-h" className="display text-[clamp(2.7rem,4.4vw,4.5rem)]">
-            <span className="block">
-              Distinctive
-            </span>
-            <span className="block">
-              websites.
-            </span>
-            <span className="block">
-              <em>Thoughtfully</em> built.
-            </span>
-          </h1>
-          <p className="lede mt-6">
-            I&rsquo;m Ali Tsai, a designer and developer based in Amman, creating expressive digital experiences for
-            businesses and brands.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="#work" className="btn btn-primary">
-              Explore my work <span className="arrow" aria-hidden="true">&darr;</span>
-            </Link>
-            <Link href="#contact" className="btn btn-secondary">
-              Discuss a project
-            </Link>
-          </div>
-        </div>
-        <div className="lg:col-span-7">
-          <HeroStage />
-        </div>
+      <div className="relative pt-4 md:pt-6">
+        <HeroStage />
       </div>
+      <script dangerouslySetInnerHTML={{ __html: intro }} />
     </section>
   );
 }

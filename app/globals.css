@@ -172,7 +172,7 @@
   --ease-soft: cubic-bezier(0.3, 0.8, 0.3, 1);
 
   --sh-frame: 0 1px 0 rgb(255 255 255 / 0.1) inset, 0 28px 50px -30px rgb(58 34 48 / 0.55), 0 10px 20px -14px rgb(36 33 31 / 0.4);
-  --nav-h: 68px;
+  --nav-h: 76px;
   --index-h: 0px;
   color-scheme: light;
   /* Registered colours transition on the root, so the whole page cross-fades together in ~280ms
@@ -519,6 +519,15 @@
       0 1px 0 rgb(255 255 255 / 0.1) inset,
       0 8px 12px -9px rgb(0 0 0 / 0.7);
   }
+  button.nav-item {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    font-size: 0.97rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
   .nav-item[aria-current="true"] {
     font-weight: 600;
   }
@@ -780,6 +789,343 @@
     transform: translateY(-1px);
   }
 
+  /* ---------- Floating header and menus ---------- */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: var(--nav-h);
+    padding: 12px clamp(0.75rem, 2vw, 1.5rem) 0;
+    pointer-events: none; /* only the bar and open panels catch the pointer */
+  }
+  .nav-shell {
+    position: relative;
+    max-width: 1180px;
+    margin-inline: auto;
+    pointer-events: auto;
+  }
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 60px;
+    padding: 0 0.75rem 0 1.25rem;
+    background: var(--color-ivory);
+    border: 1px solid var(--c-line-strong);
+    border-radius: 18px;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.45) inset,
+      0 18px 30px -22px rgb(58 34 48 / 0.55),
+      0 4px 10px -6px rgb(36 33 31 / 0.25);
+  }
+  [data-theme="dark"] .nav-bar {
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.06) inset,
+      0 18px 30px -22px rgb(0 0 0 / 0.8);
+  }
+  .nav-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 10px);
+    max-height: calc(100dvh - var(--nav-h) - 16px);
+    overflow-y: auto;
+    background: var(--color-ivory);
+    border: 1px solid var(--c-line-strong);
+    border-radius: 18px;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.4) inset,
+      0 36px 60px -30px rgb(58 34 48 / 0.6);
+    opacity: 0;
+    visibility: hidden; /* closed panels are removed from the tab order and the accessibility tree */
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition:
+      opacity 240ms var(--ease-out),
+      transform 240ms var(--ease-out),
+      visibility 0s linear 240ms;
+  }
+  .nav-panel[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+  .nav-caret {
+    transition: transform 220ms var(--ease-out);
+  }
+  .nav-caret.is-open {
+    transform: rotate(180deg);
+  }
+  .menu-tile {
+    display: block;
+    padding: 14px;
+    border: 1px solid var(--c-line);
+    border-radius: 14px;
+    background: var(--c-surface-quiet);
+    transition-property: border-color, background-color, transform;
+    transition-duration: 200ms;
+    transition-timing-function: var(--ease-out);
+  }
+  .menu-tile:hover,
+  .menu-tile:focus-visible {
+    border-color: var(--color-plum);
+    background: var(--c-surface-hover);
+    transform: translateY(-2px);
+  }
+  .menu-strip {
+    padding: 10px 14px 4px;
+    border-top: 1px solid var(--c-line);
+  }
+  .menu-art {
+    aspect-ratio: 8 / 5;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--c-line);
+    background: var(--c-sand);
+    color: var(--color-charcoal);
+  }
+
+  /* ---------- Hero: typographic opening ---------- */
+  .hero-stage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "wl wr" "img img";
+    align-items: center;
+    row-gap: 1.25rem;
+    padding-inline: clamp(1.25rem, 4vw, 3rem);
+    max-width: 1680px;
+    margin-inline: auto;
+  }
+  .hero-word {
+    font-family: var(--font-serif);
+    font-size: clamp(2.6rem, 11vw, 5.4rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+  }
+  .hero-word-l {
+    grid-area: wl;
+    justify-self: end;
+    padding-right: 0.12em;
+  }
+  .hero-word-r {
+    grid-area: wr;
+    justify-self: start;
+    padding-left: 0.12em;
+  }
+  .hero-mask {
+    grid-area: img;
+    min-width: 0;
+  }
+  @media (min-width: 1024px) {
+    .hero-stage {
+      grid-template-columns: 1fr minmax(0, 48vw) 1fr;
+      grid-template-areas: "wl img wr";
+      padding-inline: 3vw;
+    }
+    .hero-word {
+      font-size: clamp(3.4rem, 6.6vw, 7rem);
+    }
+    .hero-word-l {
+      padding-right: 1.6vw;
+    }
+    .hero-word-r {
+      padding-left: 1.6vw;
+    }
+  }
+
+  /* The opening. The photograph is always laid out at full size; only a clip-path reveals it, so it is never
+     distorted. --hero-delay is a 3s failsafe until the script says the cover is decoded. */
+  @keyframes hero-open {
+    0% {
+      clip-path: inset(0 38% 0 38% round var(--r-frame));
+      opacity: 0; /* nothing is shown until the cover is decoded and the reveal starts */
+    }
+    1% {
+      opacity: 1;
+    }
+    100% {
+      clip-path: inset(0 0 0 0 round var(--r-frame));
+      opacity: 1;
+    }
+  }
+  @keyframes hero-open-m {
+    0% {
+      clip-path: inset(9% 7% 9% 7% round var(--r-frame));
+      opacity: 0;
+    }
+    1% {
+      opacity: 0.4;
+    }
+    100% {
+      clip-path: inset(0 0 0 0 round var(--r-frame));
+      opacity: 1;
+    }
+  }
+  @keyframes hero-word-l {
+    from {
+      transform: translateX(18.2vw);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes hero-word-r {
+    from {
+      transform: translateX(-18.2vw);
+    }
+    to {
+      transform: none;
+    }
+  }
+  html[data-hero-intro] .hero-mask {
+    animation: hero-open-m 800ms var(--ease-out) var(--hero-delay, 3s) both;
+  }
+  @media (min-width: 1024px) {
+    html[data-hero-intro] .hero-mask {
+      animation: hero-open 1000ms var(--ease-out) var(--hero-delay, 3s) both;
+    }
+    html[data-hero-intro] .hero-word-l {
+      animation: hero-word-l 1000ms var(--ease-out) var(--hero-delay, 3s) both;
+    }
+    html[data-hero-intro] .hero-word-r {
+      animation: hero-word-r 1000ms var(--ease-out) var(--hero-delay, 3s) both;
+    }
+  }
+
+  /* ---------- Footer: a personal sign-off ---------- */
+  .footer-amp {
+    position: absolute;
+    right: -2vw;
+    bottom: -12vw;
+    font-size: 36vw;
+    color: var(--color-paper);
+    opacity: 0.05;
+  }
+  .footer-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+  .note-card {
+    position: relative;
+    max-width: 40rem;
+    padding: 1.4rem 1.75rem 1.7rem;
+    border-radius: 10px;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    transform: rotate(-1.2deg);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.7) inset,
+      0 34px 50px -30px rgb(0 0 0 / 0.75);
+  }
+  .note-kicker {
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid rgb(36 33 31 / 0.28);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6a5a50;
+  }
+  .note-line {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgb(36 33 31 / 0.2);
+    font-family: var(--font-serif);
+    font-size: clamp(1.2rem, 2.1vw, 1.65rem);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .note-line:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  .note-email {
+    color: var(--color-plum-solid);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1.5px;
+  }
+  .social-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 3.25rem;
+    padding: 0;
+    list-style: none;
+  }
+  .social-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    width: 100%;
+    min-height: 9.5rem;
+    border: 3px solid var(--color-paper);
+    border-radius: 24px;
+    background: #c8a26f; /* muted bronze */
+    color: #2a1620;
+    box-shadow: 0 18px 26px -18px rgb(0 0 0 / 0.7);
+    transition-property: translate, rotate, scale, box-shadow;
+    transition-duration: 220ms;
+    transition-timing-function: var(--ease-out);
+  }
+  .social-label {
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  @media (min-width: 768px) {
+    .social-row {
+      display: flex;
+      gap: 0;
+      padding-left: 0.5rem;
+    }
+    .social-row li {
+      margin-left: -14px;
+    }
+    .social-row li:first-child {
+      margin-left: 0;
+    }
+    .social-tile {
+      width: 10.5rem;
+      height: 10.5rem;
+    }
+    .social-row li:nth-child(1) .social-tile {
+      rotate: -4deg;
+    }
+    .social-row li:nth-child(2) .social-tile {
+      rotate: 2.5deg;
+    }
+    .social-row li:nth-child(3) .social-tile {
+      rotate: -2deg;
+    }
+    .social-row li:nth-child(4) .social-tile {
+      rotate: 3.5deg;
+    }
+  }
+  .social-tile:hover,
+  .social-tile:focus-visible {
+    translate: 0 -6px;
+    rotate: 0deg !important;
+    box-shadow: 0 26px 30px -18px rgb(0 0 0 / 0.75);
+  }
+  .social-row li:hover,
+  .social-row li:focus-within {
+    z-index: 2;
+    position: relative;
+  }
+  .social-tile:active {
+    translate: 0 -2px;
+    scale: 0.97;
+  }
+
   /* ---------- Cinematic covers ---------- */
   .cover {
     position: relative;
@@ -875,21 +1221,12 @@
       radial-gradient(48% 62% at 74% 46%, color-mix(in srgb, var(--hero-accent) 22%, transparent), transparent 72%),
       radial-gradient(30% 40% at 12% 90%, rgb(103 67 80 / 0.07), transparent 70%);
   }
-  .hero-amp,
   .footer-amp {
     font-family: var(--font-serif);
     font-style: italic;
     line-height: 1;
-    color: var(--color-plum);
     pointer-events: none;
     user-select: none;
-  }
-  .hero-amp {
-    position: absolute;
-    left: -3vw;
-    bottom: -12vw;
-    font-size: 40vw;
-    opacity: 0.055;
   }
   .footer-amp {
     position: absolute;
@@ -941,7 +1278,7 @@
   /* ---------- Progress line (subtle, progressive enhancement) ---------- */
   .progress {
     position: fixed;
-    top: var(--nav-h);
+    top: 0;
     left: 0;
     right: 0;
     height: 1px;
@@ -1069,6 +1406,10 @@
     .switch-thumb,
     .switch-thumb .sun,
     .switch-thumb .moon,
+    .nav-panel,
+    .nav-caret,
+    .menu-tile,
+    .social-tile,
     .hero,
     .cover-layer,
     .cover-img,
@@ -1088,6 +1429,8 @@
     }
     .btn:hover,
     .nav-item:hover,
+    .menu-tile:hover,
+    .social-tile:hover,
     .more-card:hover .more-img,
     .more-card:hover .cs-link .ring {
       transform: none;

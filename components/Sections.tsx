@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { services, strengths, processSteps as steps, site } from "@/content/site";
+import { services, serviceMenu, strengths, processSteps as steps, site } from "@/content/site";
 import { Reveal } from "./Reveal";
 
 export function Services() {
@@ -16,7 +16,7 @@ export function Services() {
         </Reveal>
         <div className="lg:col-span-8">
           {services.map((s, i) => (
-            <Reveal key={s.title} delay={i * 50} className="grid gap-8 border-t border-line py-9 first:border-t-0 first:pt-0 md:grid-cols-[1.1fr_1fr]">
+            <Reveal key={s.title} id={serviceMenu[i].id} delay={i * 50} className="grid gap-8 border-t border-line py-9 first:border-t-0 first:pt-0 md:grid-cols-[1.1fr_1fr]">
               <div>
                 <p className="num text-ink-soft">{String(i + 1).padStart(2, "0")}</p>
                 <h3 className="display mt-1 text-[1.8rem] leading-[1.1]">{s.title}</h3>
