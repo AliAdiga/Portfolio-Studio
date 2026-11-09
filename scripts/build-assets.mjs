@@ -49,3 +49,15 @@ for (const [file, dir] of covers) {
     .toFile(`public/work/${dir}/cover.webp`);
   console.log(`${dir}/cover`, info.width, info.height, Math.round(info.size / 1024) + "KB");
 }
+
+// "More websites": genuine desktop captures (1357x932). Originals live in assets-source/more-websites.
+// Normalised to exactly 1357x932 so all cards share one proportion (cedar-stone is 1358x933).
+for (const slug of ["vestra", "cedar-stone", "evercare"]) {
+  for (const kind of ["desktop", "detail"]) {
+    const info = await sharp(`assets-source/more-websites/${slug}-${kind}.jpg`)
+      .resize(1357, 932, { fit: "fill" })
+      .webp({ quality: 84, effort: 5 })
+      .toFile(`public/work/more/${slug}-${kind}.webp`);
+    console.log(`more/${slug}-${kind}`, info.width, info.height, Math.round(info.size / 1024) + "KB");
+  }
+}

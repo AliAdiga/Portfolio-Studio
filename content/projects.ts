@@ -12,6 +12,8 @@ export type Shot = {
 };
 
 export type Project = {
+  /** The four featured projects, each with a full case study. */
+  collection: "featured";
   slug: string;
   name: string;
   category: string;
@@ -49,6 +51,7 @@ const m = (src: string, alt: string, caption: string): Shot => ({ src, w: 780, h
 export const projects: Project[] = [
   {
     slug: "dar",
+    collection: "featured",
     name: "DAR",
     category: "Architecture and interiors",
     short: "An interiors studio concept you can walk through.",
@@ -127,6 +130,7 @@ export const projects: Project[] = [
   },
   {
     slug: "aurelle",
+    collection: "featured",
     name: "Aurelle",
     category: "Perfume and luxury presentation",
     short: "A perfume house presented as a dark gallery and a soft floral world.",
@@ -203,6 +207,7 @@ export const projects: Project[] = [
   },
   {
     slug: "zaytoun",
+    collection: "featured",
     name: "Zaytoun",
     category: "Restaurant and hospitality",
     short: "A bilingual restaurant site and a companion reservations app.",
@@ -280,6 +285,7 @@ export const projects: Project[] = [
   },
   {
     slug: "caucasus-sweets-home",
+    collection: "featured",
     name: "Caucasus Sweets Home",
     category: "Bakery and dessert house",
     short: "An Arabic-first site for a Caucasian dessert house in Amman.",
@@ -351,6 +357,101 @@ export const projects: Project[] = [
       w: 1120,
       h: 700,
       alt: "Screen recording of the Caucasus Sweets Home English site scrolling from the hero through the menu and gallery sections.",
+    },
+  },
+];
+
+/**
+ * "More websites": further sites shown as compact cards, without case-study pages.
+ * Descriptions were written from each site's own page content and the supplied desktop captures.
+ * Nothing here claims client work, results or testimonials.
+ */
+export type AdditionalProject = {
+  collection: "additional";
+  slug: string;
+  /** Name as the project is known in this portfolio. */
+  name: string;
+  /** Brand as displayed on the site itself, where it differs. */
+  displayedAs?: string;
+  category: string;
+  description: string;
+  liveUrl: string;
+  /** Homepage capture used as the card image. */
+  cover: Shot;
+  /** A second real capture for the preview dialog. */
+  detail: Shot;
+};
+
+export const additionalProjects: AdditionalProject[] = [
+  {
+    collection: "additional",
+    slug: "vestra",
+    name: "Vestra",
+    displayedAs: "VESTRA Fine Jewellery",
+    category: "Fine jewellery",
+    description:
+      "A fine-jewellery storefront with a full-bleed photographic hero, a catalogue to browse by rings, chains, pendants, earrings and cuffs, and a shopping bag.",
+    liveUrl: "https://vestra-eta.vercel.app",
+    cover: {
+      src: "/work/more/vestra-desktop.webp",
+      w: 1357,
+      h: 932,
+      alt: "The Vestra home page: a full-bleed photograph of beaded jewellery on a grey blanket with the headline Made to be worn for a lifetime, under a plum navigation bar.",
+      caption: "Home page.",
+    },
+    detail: {
+      src: "/work/more/vestra-detail.webp",
+      w: 1357,
+      h: 932,
+      alt: "The Vestra catalogue page titled All jewellery, with category filters and a grid of rings and chains.",
+      caption: "The jewellery catalogue.",
+    },
+  },
+  {
+    collection: "additional",
+    slug: "cedar-stone-legal",
+    name: "Cedar Stone Legal",
+    category: "Law firm",
+    description:
+      "A bilingual law-firm website in English and Arabic, with practice areas, a team section, an FAQ and a free-consultation action.",
+    liveUrl: "https://cedar-stone-legal.vercel.app",
+    cover: {
+      src: "/work/more/cedar-stone-desktop.webp",
+      w: 1357,
+      h: 932,
+      alt: "The Cedar Stone Legal home page with the headline The Law, On Your Side, a dark green card of firm statistics and a Free Consultation button.",
+      caption: "Home page.",
+    },
+    detail: {
+      src: "/work/more/cedar-stone-detail.webp",
+      w: 1357,
+      h: 932,
+      alt: "The Cedar Stone Legal practice areas section showing Family Law, Corporate and Business, Estate Planning and Civil Litigation.",
+      caption: "Practice areas.",
+    },
+  },
+  {
+    collection: "additional",
+    slug: "evercare-hospital",
+    name: "Evercare Hospital",
+    displayedAs: "Evercare Medical Center",
+    category: "Healthcare",
+    description:
+      "A hospital website with departments, a doctor directory, facilities, news and an online booking action.",
+    liveUrl: "https://evercare-hospital-blush.vercel.app",
+    cover: {
+      src: "/work/more/evercare-desktop.webp",
+      w: 1357,
+      h: 932,
+      alt: "The Evercare home page: a doctor with a tablet in front of a medical monitor under the headline Compassionate care for every stage of life, with Book online and Our departments buttons.",
+      caption: "Home page.",
+    },
+    detail: {
+      src: "/work/more/evercare-detail.webp",
+      w: 1357,
+      h: 932,
+      alt: "The Evercare doctor directory under the heading Meet the people who care, showing four doctor profile cards.",
+      caption: "The doctor directory.",
     },
   },
 ];

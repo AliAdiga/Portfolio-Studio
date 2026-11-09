@@ -831,6 +831,37 @@
     animation: fade-in 260ms ease-out both;
   }
 
+  /* ---------- More websites: compact cards ---------- */
+  .more-shot {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--r-frame);
+    border: 1px solid var(--c-line-strong);
+    background: var(--c-sand); /* reserved space while the capture loads */
+    transition: border-color 250ms var(--ease-out);
+  }
+  .more-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .more-card:hover .more-shot,
+  .more-card:focus-within .more-shot {
+    border-color: var(--color-plum);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .more-img {
+      transition: transform 250ms var(--ease-out);
+    }
+    .more-card:hover .more-img {
+      transform: scale(1.025);
+    }
+    .more-card:hover .cs-link .ring {
+      transform: translateX(3px);
+    }
+  }
+
   /* ---------- Atmosphere ---------- */
   .hero {
     --hero-accent: #a47a5d;
@@ -1041,6 +1072,8 @@
     .hero,
     .cover-layer,
     .cover-img,
+    .more-shot,
+    .more-img,
     .switch-track::before,
     .switch-track::after,
     .sky-clouds,
@@ -1054,7 +1087,9 @@
       animation: none;
     }
     .btn:hover,
-    .nav-item:hover {
+    .nav-item:hover,
+    .more-card:hover .more-img,
+    .more-card:hover .cs-link .ring {
       transform: none;
     }
     ::view-transition-group(*),

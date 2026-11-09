@@ -61,6 +61,12 @@ The four 3:2 presentation images live in `assets-source/covers/` (PNG originals,
 
 Real recordings open from a "Watch demo" button (`components/DemoDialog.tsx`); the video element only exists while the dialog is open, so nothing is downloaded until a visitor asks.
 
+## More websites
+
+`content/projects.ts` holds two collections: `projects` (collection `"featured"`, the four case-study projects) and `additionalProjects` (collection `"additional"`: Vestra, Cedar Stone Legal, Evercare Hospital). `components/MoreWebsites.tsx` renders the second one between Selected Work and Services as three compact cards with a genuine desktop capture, HTML text, an external link and a small "More views" dialog (`PreviewDialog.tsx`). There are no case-study pages or filters for them. Originals are in `assets-source/more-websites/` (JPG, 1357x932) and `npm run assets` exports WebP to `public/work/more/`.
+
+Descriptions only state what each site's own page and the supplied captures show. Add a new compact project by appending to `additionalProjects`.
+
 ## Design system notes
 
 - Light, ivory and charcoal with a deep plum accent; dark theme swaps the same tokens. Theme follows a saved choice, otherwise the system setting, and is applied before first paint.

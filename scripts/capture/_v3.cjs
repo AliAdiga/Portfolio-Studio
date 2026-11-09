@@ -1,5 +1,5 @@
 const { chromium } = require("D:/Projects/DAR/node_modules/playwright-core");
-const B = "http://localhost:3770";
+const B = "http://localhost:3800";
 const ok = (c, m) => console.log(c ? "PASS" : "FAIL", m);
 const exe = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const slugs = ["dar", "aurelle", "zaytoun", "caucasus"];
