@@ -2,7 +2,7 @@ const { chromium } = require("D:/Projects/DAR/node_modules/playwright-core");
 const fs = require("fs");
 const out = "D:/Projects/Portfolio-Studio/docs/screenshots/";
 fs.mkdirSync(out, { recursive: true });
-const base = "http://localhost:3730";
+const base = "http://localhost:3770";
 const exe = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 
 async function ctxFor(b, theme, vp, mob, dpr = 1) {

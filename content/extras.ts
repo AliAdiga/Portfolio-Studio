@@ -9,6 +9,8 @@ export type Capability = Crop & { label: string; value: string; phoneVideo?: boo
 export type Extras = {
   /** Tint that colours the hero when this project is selected. */
   accent: string;
+  /** Cinematic 3:2 presentation image (the monitor and its surroundings are part of the image). */
+  cover: { src: string; w: number; h: number; alt: string };
   /** One strong sentence for the homepage. */
   line: string;
   /** Short scope summary for the case-study facts row. */
@@ -21,6 +23,7 @@ export type Extras = {
 export const extras: Record<string, Extras> = {
   dar: {
     accent: "#b08560",
+    cover: { src: "/work/dar/cover.webp", w: 1536, h: 1024, alt: "A monitor on a pale stone shelf shows the DAR home page: a furnished walnut living room under the headline Made for living, with stone and walnut samples and an olive branch beside it." },
     line: "Walk through a home room by room, then change its light and finish.",
     scope: "Concept, interface, bilingual front-end",
     capabilities: [
@@ -54,6 +57,7 @@ export const extras: Record<string, Extras> = {
   },
   aurelle: {
     accent: "#8d2a43",
+    cover: { src: "/work/aurelle/cover.webp", w: 1536, h: 1024, alt: "A monitor in a dark room beside a velvet curtain shows the Aurelle home page: a dark perfume bottle with a thread of incense smoke, and a small amber bottle on the marble shelf." },
     line: "Meet each fragrance as a scene, in English, French or Arabic.",
     scope: "Brand, interface, front-end",
     capabilities: [
@@ -87,6 +91,7 @@ export const extras: Record<string, Extras> = {
   },
   zaytoun: {
     accent: "#6f8450",
+    cover: { src: "/work/zaytoun/cover.webp", w: 1536, h: 1024, alt: "A monitor on a wooden table in warm light shows the Zaytoun home page, The Taste of Home, with an olive branch in a vase and a small dish of olives beside it." },
     line: "Browse the menu, then move toward a table.",
     scope: "Interface, website and companion app",
     capabilities: [
@@ -121,6 +126,7 @@ export const extras: Record<string, Extras> = {
   },
   "caucasus-sweets-home": {
     accent: "#9c2f42",
+    cover: { src: "/work/caucasus/cover.webp", w: 1536, h: 1024, alt: "A monitor on a marble shelf shows the Arabic home page of Caucasus Sweets Home in burgundy, with a slice of honey cake and a glass of tea beside it." },
     line: "An Arabic-first catalogue with an English twin, prices included.",
     scope: "Identity direction, interface, front-end",
     capabilities: [

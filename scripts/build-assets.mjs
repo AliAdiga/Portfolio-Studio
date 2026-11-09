@@ -32,3 +32,20 @@ for (const [src, dest, w] of map) {
     .toFile(`public/work/${dest}.webp`);
   console.log(dest, info.width, info.height, Math.round(info.size / 1024) + "KB");
 }
+
+// Cinematic project covers: originals live in assets-source/covers (PNG, 1536x1024, 3:2).
+// The 1536px WebP below is the source Next.js resizes to AVIF/WebP per device.
+const covers = [
+  ["dar-monitor", "dar"],
+  ["aurelle-monitor", "aurelle"],
+  ["zaytoun-monitor", "zaytoun"],
+  ["caucasus-sweets-monitor", "caucasus"],
+];
+for (const [file, dir] of covers) {
+  mkdirSync(`public/work/${dir}`, { recursive: true });
+  const info = await sharp(`assets-source/covers/${file}.png`)
+    .removeAlpha()
+    .webp({ quality: 84, effort: 5 })
+    .toFile(`public/work/${dir}/cover.webp`);
+  console.log(`${dir}/cover`, info.width, info.height, Math.round(info.size / 1024) + "KB");
+}

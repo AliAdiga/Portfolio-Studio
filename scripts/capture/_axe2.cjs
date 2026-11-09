@@ -1,6 +1,6 @@
 const { chromium } = require("D:/Projects/DAR/node_modules/playwright-core");
 const axeSrc = require("fs").readFileSync("D:/Projects/DAR/node_modules/axe-core/axe.min.js", "utf8");
-const base = "http://localhost:3740";
+const base = "http://localhost:3770";
 (async () => {
   const b = await chromium.launch({ executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe" });
   let total = 0;

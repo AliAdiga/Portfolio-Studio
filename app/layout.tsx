@@ -4,7 +4,7 @@ import "./globals.css";
 import { site } from "@/content/site";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { RevealObserver } from "@/components/RevealObserver";
+import { RevealScript } from "@/components/RevealScript";
 
 const serif = Newsreader({
   subsets: ["latin"],
@@ -62,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="progress" aria-hidden="true" />
         <main id="main">{children}</main>
         <Footer />
-        <RevealObserver />
+        <RevealScript />
       </body>
     </html>
   );

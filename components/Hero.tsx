@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { HeroStage } from "./HeroStage";
 
-const d = (ms: number) => ({ "--d": `${ms}ms` }) as React.CSSProperties;
-
 export function Hero() {
   return (
     <section className="hero relative overflow-x-clip" aria-labelledby="hero-h">
@@ -13,21 +11,21 @@ export function Hero() {
       <div className="wrap relative grid items-center gap-10 py-8 lg:min-h-[min(calc(100dvh-var(--nav-h)),780px)] lg:grid-cols-12 lg:gap-10">
         <div className="lg:col-span-5">
           <h1 id="hero-h" className="display text-[clamp(2.7rem,4.4vw,4.5rem)]">
-            <span className="rise block" style={d(40)}>
+            <span className="block">
               Distinctive
             </span>
-            <span className="rise block" style={d(120)}>
+            <span className="block">
               websites.
             </span>
-            <span className="rise block" style={d(200)}>
+            <span className="block">
               <em>Thoughtfully</em> built.
             </span>
           </h1>
-          <p className="lede rise mt-6" style={d(320)}>
+          <p className="lede mt-6">
             I&rsquo;m Ali Tsai, a designer and developer based in Amman, creating expressive digital experiences for
             businesses and brands.
           </p>
-          <div className="rise mt-8 flex flex-wrap gap-3" style={d(420)}>
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link href="#work" className="btn btn-primary">
               Explore my work <span className="arrow" aria-hidden="true">&darr;</span>
             </Link>
@@ -36,7 +34,7 @@ export function Hero() {
             </Link>
           </div>
         </div>
-        <div className="rise lg:col-span-7" style={d(240)}>
+        <div className="lg:col-span-7">
           <HeroStage />
         </div>
       </div>

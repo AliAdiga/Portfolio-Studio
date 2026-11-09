@@ -51,6 +51,16 @@ Rate limiting and duplicate protection are in memory per server instance, which 
 
 Every project statement was checked against the project's own source or documentation (DAR, Aurelle, Zaytoun app, Caucasus Sweets Home) and the Vercel project settings. Screenshots and recordings are real captures of those projects run locally, except the Zaytoun website desktop image, which is an earlier capture of the live deployment. Contact details and social links came from Ali's earlier portfolio project and need confirming.
 
+## Reveal system
+
+`components/RevealScript.tsx` is a small inline script that runs before hydration. Content is only hidden after it has confirmed an element sits below the fold; anything in or above the viewport is shown instantly, anchor jumps, large scroll jumps and Back/Forward restoration show the destination at once, and lower sections fade in (opacity plus 16px, about 480ms, stagger capped at 180ms) when they come within 15% of the viewport. Each group reveals once. Reduced motion, a missing IntersectionObserver, a script error or JavaScript being off all leave every element visible, because the hidden state is only ever applied by that script.
+
+## Cinematic covers
+
+The four 3:2 presentation images live in `assets-source/covers/` (PNG originals, 1536x1024) and are exported to `public/work/<project>/cover.webp` by `npm run assets`. Next.js serves AVIF/WebP per device from those. They are shown whole (never re-framed or cropped, never recoloured in dark mode) by `components/Cover.tsx`; the hero crossfades between them in a fixed 3:2 container only after the incoming image has decoded. Mapping is in `content/extras.ts`.
+
+Real recordings open from a "Watch demo" button (`components/DemoDialog.tsx`); the video element only exists while the dialog is open, so nothing is downloaded until a visitor asks.
+
 ## Design system notes
 
 - Light, ivory and charcoal with a deep plum accent; dark theme swaps the same tokens. Theme follows a saved choice, otherwise the system setting, and is applied before first paint.

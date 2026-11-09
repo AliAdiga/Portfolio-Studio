@@ -9,7 +9,7 @@ const { chromium } = require("D:/Projects/DAR/node_modules/playwright-core");
       new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__m.lcp = e.startTime; }).observe({ type: "largest-contentful-paint", buffered: true });
       new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__m.cls += e.value; }).observe({ type: "layout-shift", buffered: true });
     });
-    await p.goto("http://localhost:3740/", { waitUntil: "load" });
+    await p.goto("http://localhost:3770/", { waitUntil: "load" });
     await p.waitForTimeout(3500);
     const r = await p.evaluate(() => {
       const res = performance.getEntriesByType("resource");

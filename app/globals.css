@@ -26,6 +26,107 @@
   --font-sans: var(--font-hanken), system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+@property --c-ivory {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f4efe7;
+}
+@property --c-sand {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ebe3d6;
+}
+@property --c-charcoal {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #24211f;
+}
+@property --c-ink-soft {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #57514b;
+}
+@property --c-plum {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #674350;
+}
+@property --c-olive {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #6a6042;
+}
+@property --c-line {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(36 33 31 / 0.16);
+}
+@property --c-line-strong {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(36 33 31 / 0.38);
+}
+@property --c-btn-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #674350;
+}
+@property --c-btn-fg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --c-btn-edge {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #3a2230;
+}
+@property --c-surface-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ebe3d6;
+}
+@property --c-surface-active {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e2d8c8;
+}
+@property --c-surface-quiet {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(255 255 255 / 0.4);
+}
+@property --c-rim {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #d6ccbb;
+}
+@property --c-marker {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #674350;
+}
+@property --field-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #fffdf9;
+}
+@property --field-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #8a8178;
+}
+@property --zay-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e3e2d1;
+}
+@property --aur-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #1b1016;
+}
+
 /* Registered so the hero tint can transition between projects. */
 @property --hero-accent {
   syntax: "<color>";
@@ -42,6 +143,7 @@
   --c-olive: #6a6042;
   --c-line: rgb(36 33 31 / 0.16);
   --c-line-strong: rgb(36 33 31 / 0.38);
+  --c-surface-quiet: rgb(255 255 255 / 0.4);
   --c-btn-bg: #674350;
   --c-btn-fg: #ffffff;
   --c-btn-edge: #3a2230;
@@ -62,16 +164,40 @@
   --r-badge: 6px;
 
   --dur-press: 180ms;
-  --dur-theme: 260ms;
-  --dur-enter: 520ms;
-  --dur-select: 480ms;
-  --dur-toggle: 460ms;
+  --dur-theme: 280ms;
+  --dur-enter: 480ms;
+  --dur-select: 400ms;
+  --dur-toggle: 450ms;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-soft: cubic-bezier(0.3, 0.8, 0.3, 1);
 
   --sh-frame: 0 1px 0 rgb(255 255 255 / 0.1) inset, 0 28px 50px -30px rgb(58 34 48 / 0.55), 0 10px 20px -14px rgb(36 33 31 / 0.4);
   --nav-h: 68px;
+  --index-h: 0px;
   color-scheme: light;
+  /* Registered colours transition on the root, so the whole page cross-fades together in ~280ms
+     without giving every element its own transition. Images are never touched. */
+  transition:
+    --c-ivory var(--dur-theme) ease,
+    --c-sand var(--dur-theme) ease,
+    --c-charcoal var(--dur-theme) ease,
+    --c-ink-soft var(--dur-theme) ease,
+    --c-plum var(--dur-theme) ease,
+    --c-olive var(--dur-theme) ease,
+    --c-line var(--dur-theme) ease,
+    --c-line-strong var(--dur-theme) ease,
+    --c-btn-bg var(--dur-theme) ease,
+    --c-btn-fg var(--dur-theme) ease,
+    --c-btn-edge var(--dur-theme) ease,
+    --c-surface-hover var(--dur-theme) ease,
+    --c-surface-active var(--dur-theme) ease,
+    --c-surface-quiet var(--dur-theme) ease,
+    --c-rim var(--dur-theme) ease,
+    --c-marker var(--dur-theme) ease,
+    --field-bg var(--dur-theme) ease,
+    --field-border var(--dur-theme) ease,
+    --zay-bg var(--dur-theme) ease,
+    --aur-bg var(--dur-theme) ease;
 }
 
 [data-theme="dark"] {
@@ -82,6 +208,7 @@
   --c-plum: #dba9bb;
   --c-olive: #c1b68e;
   --c-line: rgb(241 235 226 / 0.18);
+  --c-surface-quiet: rgb(255 255 255 / 0.04);
   --c-line-strong: rgb(241 235 226 / 0.42);
   --c-btn-bg: #f1ebe2;
   --c-btn-fg: #2a1822;
@@ -101,7 +228,7 @@
 
 @layer components {
   html {
-    scroll-behavior: smooth;
+    /* No smooth scrolling: in-page links land instantly, so destinations never appear half-revealed. */
     scroll-padding-top: calc(var(--nav-h) + 16px);
     -webkit-text-size-adjust: 100%;
   }
@@ -113,18 +240,6 @@
     line-height: 1.65;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-  }
-  /* While the theme switches, colours cross-fade together. The class lasts ~300ms and is never set for reduced motion. */
-  html.theme-anim,
-  html.theme-anim *,
-  html.theme-anim *::before,
-  html.theme-anim *::after {
-    transition:
-      background-color var(--dur-theme) ease,
-      color var(--dur-theme) ease,
-      border-color var(--dur-theme) ease,
-      fill var(--dur-theme) ease,
-      box-shadow var(--dur-theme) ease !important;
   }
   /* Paper grain: one fixed, non-interactive layer, no blend mode. */
   body::after {
@@ -143,7 +258,6 @@
   :focus-visible {
     outline: 3px solid var(--color-plum);
     outline-offset: 3px;
-    border-radius: 6px;
   }
   .on-dark :focus-visible {
     outline-color: #f1c9d5;
@@ -239,7 +353,7 @@
     transition: transform var(--dur-press) var(--ease-out);
   }
   .btn:hover .arrow {
-    transform: translateX(4px);
+    transform: translateX(3px);
   }
   .btn-primary {
     background: var(--c-btn-bg);
@@ -250,6 +364,8 @@
       0 12px 16px -12px rgb(40 20 30 / 0.55);
   }
   .btn-primary:hover {
+    background: color-mix(in srgb, var(--c-btn-bg) 86%, #000);
+    color: var(--c-btn-fg);
     transform: translateY(-2px);
     box-shadow:
       0 1px 0 rgb(255 255 255 / 0.28) inset,
@@ -266,7 +382,7 @@
   .btn-secondary {
     border-color: var(--c-line-strong);
     color: var(--color-charcoal);
-    background: transparent;
+    background: var(--c-surface-quiet);
   }
   .btn-secondary:hover {
     background: var(--c-surface-hover);
@@ -294,6 +410,7 @@
   .on-dark .btn-secondary {
     border-color: rgb(244 239 231 / 0.55);
     color: var(--color-paper);
+    background: rgb(244 239 231 / 0.06);
   }
   .on-dark .btn-secondary:hover {
     background: rgb(244 239 231 / 0.14);
@@ -496,6 +613,46 @@
       inset 0 3px 7px rgb(0 0 0 / 0.65),
       inset 0 -1px 0 rgb(255 255 255 / 0.1);
   }
+  /* Surface lighting follows the thumb: warm from the upper left by day, cool near the moon at night. */
+  .switch-track::before,
+  .switch-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    transition:
+      opacity var(--dur-toggle) var(--ease-soft),
+      transform var(--dur-toggle) var(--ease-soft);
+  }
+  .switch-track::after {
+    background: radial-gradient(70% 130% at 22% -10%, rgb(255 244 200 / 0.5), transparent 62%);
+  }
+  .switch-track::before {
+    background: radial-gradient(70% 130% at 78% -10%, rgb(190 205 255 / 0.22), transparent 62%);
+    opacity: 0;
+  }
+  [data-theme="dark"] .switch-track::after {
+    opacity: 0;
+    transform: translateX(34px);
+  }
+  [data-theme="dark"] .switch-track::before {
+    opacity: 1;
+  }
+  .sky-clouds {
+    transition: transform var(--dur-toggle) var(--ease-soft);
+  }
+  [data-theme="dark"] .sky-clouds {
+    transform: translate(10px, 14px);
+  }
+  .sky-stars {
+    transform: translateY(-6px) scale(0.92);
+    transform-origin: center;
+    transition: transform var(--dur-toggle) var(--ease-soft);
+  }
+  [data-theme="dark"] .sky-stars {
+    transform: none;
+  }
   .switch-sky {
     position: absolute;
     inset: 0;
@@ -623,6 +780,57 @@
     transform: translateY(-1px);
   }
 
+  /* ---------- Cinematic covers ---------- */
+  .cover {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--r-frame);
+    background: var(--c-sand); /* reserved space: no blank frame while an image loads */
+  }
+  .cover-img,
+  .cover-layer {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* container and image are both 3:2, so nothing is cropped */
+  }
+  .cover-layer {
+    position: absolute;
+    inset: 0;
+  }
+  .cover-layer[data-state="on"] {
+    opacity: 1;
+    z-index: 2;
+    transition: opacity 400ms var(--ease-out);
+  }
+  .cover-layer[data-state="prev"] {
+    opacity: 1;
+    z-index: 1;
+  }
+  .cover-layer[data-state="off"] {
+    opacity: 0;
+    z-index: 0;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .cover-img {
+      transition: transform 400ms var(--ease-out);
+    }
+    .cover:hover .cover-img {
+      transform: scale(1.02);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .fade-text {
+    animation: fade-in 260ms ease-out both;
+  }
+
   /* ---------- Atmosphere ---------- */
   .hero {
     --hero-accent: #a47a5d;
@@ -660,25 +868,6 @@
     color: var(--color-paper);
     opacity: 0.06;
   }
-  .stage-peek {
-    position: absolute;
-    inset: 0;
-    border-radius: var(--r-frame);
-    overflow: hidden;
-    transform: translate(3.2%, -5%) scale(0.965);
-    opacity: 0.55;
-    filter: saturate(0.8);
-    transition:
-      transform var(--dur-select) var(--ease-soft),
-      opacity var(--dur-select) ease;
-  }
-  .stage-peek::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgb(23 18 15 / 0.35);
-  }
-
   /* ---------- Work: sticky visual beside a short narrative ---------- */
   .work-index {
     position: sticky;
@@ -686,11 +875,6 @@
     z-index: 30;
     background: var(--color-ivory);
     border-bottom: 1px solid var(--c-line);
-  }
-  @media (max-width: 1023px) {
-    .work-index {
-      position: static;
-    }
   }
   .sticky-visual {
     align-self: start;
@@ -702,32 +886,25 @@
     }
   }
 
-  /* ---------- Reveal: one entrance, played once ---------- */
-  .js [data-reveal] {
+  /* ---------- Reveal ----------
+     Content is hidden only after a script has confirmed it sits below the fold (data-rv="0").
+     Without the script, or if it fails, nothing is ever hidden.
+     1 = animated reveal just before entering view, 2 = shown instantly (above the fold, anchor jumps, back navigation). */
+  [data-rv="0"] {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
+  }
+  [data-rv="1"] {
+    opacity: 1;
+    transform: none;
     transition:
       opacity var(--dur-enter) var(--ease-out),
       transform var(--dur-enter) var(--ease-out);
-    transition-delay: var(--d, 0ms);
+    transition-delay: min(var(--d, 0ms), 180ms);
   }
-  .js [data-reveal].is-in {
+  [data-rv="2"] {
     opacity: 1;
     transform: none;
-  }
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(16px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  .rise {
-    animation: rise var(--dur-enter) var(--ease-out) both;
-    animation-delay: var(--d, 0ms);
   }
 
   /* ---------- Progress line (subtle, progressive enhancement) ---------- */
@@ -761,19 +938,6 @@
   }
 
   /* ---------- Page transitions ---------- */
-  @keyframes page-in {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  .page-in {
-    animation: page-in 0.55s var(--ease-out) both;
-  }
   @supports (view-transition-name: none) {
     @view-transition {
       navigation: auto;
@@ -803,10 +967,17 @@
     color: var(--color-charcoal);
     border: 1.5px solid var(--field-border);
     border-radius: var(--r-field);
-    padding: 0.85rem 1rem;
+    padding: 0.9rem 1rem;
     font: inherit;
-    min-height: 3rem;
+    min-height: 3.25rem;
     box-shadow: inset 0 2px 3px rgb(36 24 30 / 0.08);
+    transition-property: border-color, box-shadow;
+    transition-duration: var(--dur-press);
+  }
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--color-charcoal);
   }
   .field textarea {
     min-height: 8.5rem;
@@ -819,9 +990,10 @@
   .field input:focus-visible,
   .field select:focus-visible,
   .field textarea:focus-visible {
-    outline: 3px solid var(--color-plum);
+    outline: 2px solid var(--color-plum);
     outline-offset: 1px;
     border-color: var(--color-plum);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-plum) 20%, transparent);
   }
   .field [aria-invalid="true"] {
     border-color: #c0485f;
@@ -844,16 +1016,11 @@
 
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
+    [data-rv] {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
     }
-    .js [data-reveal] {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-    .rise,
-    .page-in,
     .progress {
       animation: none;
     }
@@ -871,9 +1038,20 @@
     .switch-thumb,
     .switch-thumb .sun,
     .switch-thumb .moon,
-    .stage-peek,
-    .hero {
+    .hero,
+    .cover-layer,
+    .cover-img,
+    .switch-track::before,
+    .switch-track::after,
+    .sky-clouds,
+    .sky-stars {
       transition: none !important;
+    }
+    :root {
+      transition: none !important;
+    }
+    .fade-text {
+      animation: none;
     }
     .btn:hover,
     .nav-item:hover {

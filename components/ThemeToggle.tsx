@@ -9,13 +9,12 @@ function subscribe(cb: () => void) {
 }
 const snapshot = () => document.documentElement.dataset.theme === "dark";
 
-function apply(dark: boolean, animate: boolean) {
-  const root = document.documentElement;
-  if (animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    root.classList.add("theme-anim");
-    window.setTimeout(() => root.classList.remove("theme-anim"), 320);
-  }
-  root.dataset.theme = dark ? "dark" : "light";
+/**
+ * Flip the theme. Page colours cross-fade because the root's registered colour tokens transition
+ * (see globals.css), so no per-element transition classes are needed.
+ */
+function apply(dark: boolean) {
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
   window.dispatchEvent(new Event(EVENT));
 }
 
@@ -38,7 +37,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       } catch {
         /* ignore */
       }
-      if (saved !== "dark" && saved !== "light") apply(e.matches, true);
+      if (saved !== "dark" && saved !== "light") apply(e.matches);
     };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
@@ -58,7 +57,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
         } catch {
           /* storage blocked: the choice lasts for this visit */
         }
-        apply(next, true);
+        apply(next);
       }}
     >
       <span className="switch-track" aria-hidden="true">
@@ -66,7 +65,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
           <circle cx="20" cy="20" r="46" fill="#fff" opacity="0.07" />
           <circle cx="20" cy="20" r="36" fill="#fff" opacity="0.08" />
           <circle cx="20" cy="20" r="27" fill="#fff" opacity="0.1" />
-          <g fill="#f4efe7">
+          <g className="sky-clouds" fill="#f4efe7">
             <circle cx="37" cy="31" r="5" opacity="0.7" />
             <circle cx="44" cy="29" r="6.5" opacity="0.7" />
             <circle cx="50" cy="35" r="7" />
@@ -80,7 +79,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
           <circle cx="56" cy="20" r="46" fill="#fff" opacity="0.03" />
           <circle cx="56" cy="20" r="34" fill="#fff" opacity="0.04" />
           <circle cx="56" cy="20" r="25" fill="#fff" opacity="0.05" />
-          <g fill="#f1ebe2">
+          <g className="sky-stars" fill="#f1ebe2">
             <circle cx="13" cy="11" r="1.2" />
             <circle cx="24" cy="27" r="1" opacity="0.8" />
             <circle cx="9" cy="29" r="0.8" opacity="0.7" />

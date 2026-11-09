@@ -119,7 +119,7 @@ export function ContactSection() {
   return (
     <section id="contact" data-nav="contact" className="border-t border-line bg-sand" aria-labelledby="contact-h">
       <div className="wrap grid gap-14 py-20 md:py-28 lg:grid-cols-12">
-        <div className="lg:col-span-5" data-reveal>
+        <div className="lg:col-span-5" data-reveal="" suppressHydrationWarning>
           <h2 id="contact-h" className="display text-[clamp(2.4rem,5vw,4.4rem)]">
             Tell me about your <em>project</em>
           </h2>
@@ -140,7 +140,8 @@ export function ContactSection() {
           onSubmit={onSubmit}
           aria-busy={sending}
           className="grid gap-6 rounded-[14px] border border-line bg-ivory p-6 shadow-[0_24px_40px_-32px_rgb(58_34_48_/_0.5)] sm:p-9 lg:col-span-7"
-          data-reveal
+          data-reveal=""
+          suppressHydrationWarning
           style={{ "--d": "100ms" } as React.CSSProperties}
         >
           <div className="grid gap-6 sm:grid-cols-2">
