@@ -49,7 +49,7 @@ export function Footer() {
               <p className="note-line">I build websites with character, care, and attention to the details.</p>
               <p className="note-line">Have something in mind? Let&rsquo;s make it happen.</p>
               <p className="note-line">
-                <a href={`mailto:${site.email}`} className="note-email">
+                <a href={`mailto:${site.email}`} className="note-email tap-sm">
                   {site.email}
                 </a>
               </p>

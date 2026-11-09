@@ -472,6 +472,14 @@
     align-items: center;
     min-height: 2.75rem;
   }
+  /* Inline text links that cannot grow to 44px without breaking the line: still clear WCAG 2.5.8 (24px). */
+  .tap-sm {
+    display: inline-block;
+    min-height: 1.625rem;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
   .badge {
     display: inline-block;
     border: 1px solid var(--c-line-strong);

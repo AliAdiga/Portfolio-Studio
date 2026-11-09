@@ -180,7 +180,9 @@ export function Nav() {
             </div>
           </nav>
           <div className="flex items-center gap-3">
-            <ThemeToggle />
+            <span className="hidden min-[380px]:inline-flex">
+              <ThemeToggle />
+            </span>
             <Link href="/#contact" className="btn btn-primary hidden !min-h-11 !px-5 md:inline-flex">
               Let&rsquo;s talk <span className="arrow" aria-hidden="true">&rarr;</span>
             </Link>

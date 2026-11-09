@@ -105,6 +105,7 @@ export function ContactSection() {
   const field = (k: keyof Errors) => ({
     id: `${uid}-${k}`,
     name: k,
+    "aria-required": true as const,
     "aria-invalid": errors[k] ? (true as const) : undefined,
     "aria-describedby": errors[k] ? `${uid}-${k}-err` : undefined,
   });
@@ -128,7 +129,7 @@ export function ContactSection() {
           </p>
           <p className="mt-8 text-[1.02rem]">
             Prefer email?{" "}
-            <a className="text-link font-semibold" href={`mailto:${site.email}`}>
+            <a className="text-link tap-sm font-semibold" href={`mailto:${site.email}`}>
               {site.email}
             </a>
           </p>
@@ -144,6 +145,7 @@ export function ContactSection() {
           suppressHydrationWarning
           style={{ "--d": "100ms" } as React.CSSProperties}
         >
+          <p className="text-[0.95rem] text-ink-soft">All fields are required except budget and timeline.</p>
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="field">
               <label htmlFor={`${uid}-name`}>Name</label>

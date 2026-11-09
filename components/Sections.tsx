@@ -43,7 +43,7 @@ export function Services() {
                 </div>
                 <figcaption className="mt-3 text-[0.9rem] text-ink-soft">
                   From{" "}
-                  <a href={`/work/${s.crop.slug}`} className="text-link font-semibold text-charcoal">
+                  <a href={`/work/${s.crop.slug}`} className="text-link tap-sm font-semibold text-charcoal">
                     {s.crop.project}
                   </a>
                 </figcaption>
