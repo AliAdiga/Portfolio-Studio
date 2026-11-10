@@ -1328,6 +1328,29 @@
     }
   }
 
+  /* Theme change: the new theme is revealed through an ink blot that grows from the switch (see ThemeToggle).
+     The root's own colour cross-fade is switched off meanwhile, so the new snapshot shows final colours at once. */
+  html[data-vt="theme"] {
+    transition: none !important;
+  }
+  html[data-vt="theme"]::view-transition-old(root),
+  html[data-vt="theme"]::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  html[data-vt="theme"]::view-transition-old(root) {
+    z-index: 1;
+  }
+  html[data-vt="theme"]::view-transition-new(root) {
+    z-index: 2;
+    -webkit-mask-image: url("/brand/ink-mask.png");
+    mask-image: url("/brand/ink-mask.png");
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 0 0;
+    mask-size: 0 0;
+  }
+
   /* ---------- Form ---------- */
   .field label {
     display: block;

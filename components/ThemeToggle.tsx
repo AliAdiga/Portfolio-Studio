@@ -10,12 +10,47 @@ function subscribe(cb: () => void) {
 const snapshot = () => document.documentElement.dataset.theme === "dark";
 
 /**
- * Flip the theme. Page colours cross-fade because the root's registered colour tokens transition
- * (see globals.css), so no per-element transition classes are needed.
+ * Flip the theme. Where the View Transitions API is available (and motion is welcome), the new theme is revealed
+ * through an ink blot that grows from the switch: the page is snapshotted, the theme attribute changes, and the
+ * new snapshot is masked by a soft ink shape whose size is animated from the switch outward. Elsewhere, and for
+ * visitors who prefer reduced motion, the change is instant (the colour tokens still cross-fade a little).
  */
-function apply(dark: boolean) {
+type VTDocument = Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void>; finished: Promise<void> } };
+
+function setTheme(dark: boolean) {
   document.documentElement.dataset.theme = dark ? "dark" : "light";
   window.dispatchEvent(new Event(EVENT));
+}
+
+async function apply(dark: boolean, origin?: HTMLElement | null) {
+  const root = document.documentElement;
+  const vt = (document as VTDocument).startViewTransition;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!vt || reduced || !origin) return setTheme(dark);
+
+  const r = origin.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  const far = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  const size = (far / 0.34) * 1.04; // the ink shape is solid out to 0.34 of its width
+  root.dataset.vt = "theme";
+  const t = vt.call(document, () => setTheme(dark));
+  try {
+    await t.ready;
+    root.animate(
+      {
+        maskSize: ["0px 0px", `${size}px ${size}px`],
+        maskPosition: [`${x}px ${y}px`, `${x - size / 2}px ${y - size / 2}px`],
+      },
+      // fill: "forwards" keeps the fully revealed mask until the transition ends, so the old theme never flashes back.
+      { duration: 1300, easing: "cubic-bezier(0.55, 0.05, 0.3, 1)", fill: "forwards", pseudoElement: "::view-transition-new(root)" },
+    );
+    await t.finished;
+  } catch {
+    /* the transition was skipped; the theme is already applied */
+  } finally {
+    delete root.dataset.vt;
+  }
 }
 
 /**
@@ -37,7 +72,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       } catch {
         /* ignore */
       }
-      if (saved !== "dark" && saved !== "light") apply(e.matches);
+      if (saved !== "dark" && saved !== "light") setTheme(e.matches);
     };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
@@ -50,14 +85,14 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       aria-checked={dark}
       aria-label="Dark mode"
       className={`switch ${className}`}
-      onClick={() => {
+      onClick={(e) => {
         const next = !dark;
         try {
           localStorage.setItem("theme", next ? "dark" : "light");
         } catch {
           /* storage blocked: the choice lasts for this visit */
         }
-        apply(next);
+        void apply(next, e.currentTarget);
       }}
     >
       <span className="switch-track" aria-hidden="true">
